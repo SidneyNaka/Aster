@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Aster</title>
+    
+    <link rel="icon" href="img/aster_transparent.png" type="image/png" />
+    
+    <link rel="stylesheet" href="login.css" />
+</head>
+<body>
+    
+    <main>
+        <div class="container">
+            
+            <div class="sidebar-area">
+                <div class="logo-in-card">
+                    <img src="img/simbolo_nome.png" />
+                    <h1>ASTER</h1>
+                </div>
+            </div> 
+
+            <section class="login-section">
+                <div id="login-form" class="form active">
+                    <h2 class="login-title">Entrar no Aster</h2>
+                    <p class="login-subtitle">Acesse sua conta e descubra novas músicas</p>
+
+                    <form>
+                        <label for="user">E-mail ou telefone</label>
+                        <input type="text" id="user" name="user" placeholder="Digite seu e-mail ou telefone" required />
+
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" name="password" placeholder="Digite sua senha" required />
+
+                        <button type="submit" class="btn-login">Entrar</button>
+
+                        <p id="error-message" class="error-text"></p>
+                    </form>
+                    <div class="options">
+                        <a href="#" id="forgot-password-link" class="forgot-password">Esqueceu sua senha?</a>
+                        <a href="#" id="create-account-link" class="create-account">Criar uma nova conta</a>
+                    </div>
+                </div>
+
+                <div id="forgot-password-form" class="form">
+                    <h2 class="login-title">Recuperar Senha</h2>
+                    <form>
+                        <label for="recover-email">E-mail ou telefone</label>
+                        <input type="text" id="recover-email" name="recover-email" placeholder="Digite seu e-mail ou telefone" required />
+                        <button type="submit" class="btn-login">Enviar link de recuperação</button>
+                    </form>
+                    <div class="options">
+                        <a href="#" id="back-to-login-from-forgot">Voltar ao login</a>
+                    </div>
+                </div>
+
+                <div id="create-account-form" class="form">
+                    <h2 class="login-title">Criar Nova Conta</h2>
+                    <form>
+                        <label for="new-username">Nome de Usuário</label>
+                        <input type="text" id="new-username" name="new-username" placeholder="Digite seu nome de usuário" required />
+
+                        <label for="new-user">E-mail ou telefone</label>
+                        <input type="text" id="new-user" name="new-user" placeholder="Digite seu e-mail ou telefone" required />
+
+                        <label for="new-password">Senha</label>
+                        <input type="password" id="new-password" name="new-password" placeholder="Digite sua senha" required />
+
+                        <label for="confirm-password">Confirmar Senha</label>
+                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirme sua senha" required />
+
+                        <button type="submit" class="btn-login">Criar conta</button>
+                    </form>
+                    <div class="options">
+                        <a href="#" id="back-to-login-from-create">Voltar ao login</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <p><span class="footer-highlight">Aster:</span> onde a música vira emoção e acompanha seus momentos.</p>
+    </footer>
+
+    <script>
+    // --- Seleção dos Elementos ---
+    const loginForm = document.getElementById('login-form');
+    const forgotForm = document.getElementById('forgot-password-form');
+    const createForm = document.getElementById('create-account-form');
+
+    const forgotLink = document.getElementById('forgot-password-link');
+    const createLink = document.getElementById('create-account-link');
+    const backFromForgot = document.getElementById('back-to-login-from-forgot');
+    const backFromCreate = document.getElementById('back-to-login-from-create');
+    
+    // --- Elementos dos Formulários ---
+    const loginFormEl = loginForm.querySelector('form');
+    const createFormEl = createForm.querySelector('form');
+    const errorMessageEl = document.getElementById('error-message');
+
+    // --- Função para Alternar Formulários ---
+    function showForm(formToShow) {
+        loginForm.classList.remove('active');
+        forgotForm.classList.remove('active');
+        createForm.classList.remove('active');
+        formToShow.classList.add('active');
+    }
+
+    // --- Eventos dos Links de Navegação ---
+    createLink.addEventListener('click', (e) => { e.preventDefault(); showForm(createForm); });
+    forgotLink.addEventListener('click', (e) => { e.preventDefault(); showForm(forgotForm); });
+    backFromForgot.addEventListener('click', (e) => { e.preventDefault(); showForm(loginForm); });
+    backFromCreate.addEventListener('click', (e) => { e.preventDefault(); showForm(loginForm); });
+
+    // --- Lógica do Formulário de Login ---
+    loginFormEl.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if(errorMessageEl) errorMessageEl.style.display = 'none';
+
+        const email = document.getElementById('user').value;
+        const senha = document.getElementById('password').value;
+
+        fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user: email, password: senha })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // ---- AQUI ESTÁ A MUDANÇA ----
+                // Salva o token recebido no localStorage do navegador
+                localStorage.setItem('token', data.token);
+                
+                // E então redireciona para a página principal
+                window.location.href = 'home.html';
+            } else {
+                if(errorMessageEl) {
+                    errorMessageEl.textContent = data.message;
+                    errorMessageEl.style.display = 'block';
+                } else {
+                    alert(data.message);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro na requisição de login:', error);
+            if(errorMessageEl) {
+                errorMessageEl.textContent = 'Não foi possível conectar ao servidor.';
+                errorMessageEl.style.display = 'block';
+            } else {
+                alert('Não foi possível conectar ao servidor.');
+            }
+        });
+    });
+
+    // --- Lógica do Formulário de Criação de Conta ---
+    createFormEl.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const username = document.getElementById('new-username').value;
+        const email = document.getElementById('new-user').value;
+        const password = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (password !== confirmPassword) {
+            alert("As senhas não coincidem!");
+            return;
+        }
+
+        fetch('http://localhost:3000/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+            if (data.success) {
+                showForm(loginForm);
+                createFormEl.reset();
+            }
+        })
+        .catch(err => {
+            console.error('Erro na requisição de registro:', err);
+            alert('Ocorreu um erro ao tentar criar a conta.');
+        });
+    });
+</script>
+</body>
+</html>

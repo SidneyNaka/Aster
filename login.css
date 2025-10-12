@@ -1,0 +1,334 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Cores principais */
+:root {
+    --background-dark: #121212;
+    --background-gray: rgba(18, 18, 18, 0.85);
+    --blue-neon: #0d47a1; /* Azul neon base (escuro) */
+    --blue-neon-light: #2196F3; /* Azul mais claro para o brilho interno */
+    --text-gray: #b3b3b3;
+    --input-bg: #282828;
+    --input-border: #404040;
+    --link-blue: #0d47a1; /* Azul escuro */
+    --link-blue-hover: #094187; /* Azul escuro mais forte */
+}
+
+/* Fundo com imagem */
+body, html {
+    height: 100%;
+    /* ATUALIZE AQUI O NOME DA SUA IMAGEM: background: url(img/blue_moon (2).jpg) ... */
+    background: url('img/blue_moon\ \(2\).jpg') no-repeat center center fixed; 
+    backdrop-filter: blur(5px);
+    
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-gray);
+    position: relative;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* Overlay escuro + blur para contraste */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    
+    /* Gradiente radial que foca no centro */
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%);
+    
+    backdrop-filter: blur(6px);       /* embaçamento */
+    -webkit-backdrop-filter: blur(6px); /* compatibilidade com Safari */
+    z-index: -1;
+}
+
+/* Container do formulário (card de login) */
+main {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    min-height: calc(100vh - 140px);
+}
+
+.container {
+    width: 760px;
+    display: flex;
+    
+    /* Gradiente radial que foca no centro */
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 15px;
+    border: 2px solid var(--blue-neon); 
+    padding: 0; 
+    box-sizing: border-box;
+    
+}
+
+/* NOVA ÁREA LATERAL - Centraliza a logo */
+.sidebar-area {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    background-color: transparent; 
+    border-top-left-radius: 13px; 
+    border-bottom-left-radius: 13px; 
+    min-height: 500px; 
+}
+
+/* Estilização da Logo e Título dentro do Card */
+.sidebar-area .logo-in-card img {
+    width: 300px; 
+    height: 300px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 5px var(--blue-neon-light)) drop-shadow(0 0 15px var(--blue-neon)) drop-shadow(0 0 30px var(--blue-neon));
+    margin-bottom: 5px;
+    animation: neon-pulse 3s infinite alternate ease-in-out;
+}
+
+.sidebar-area .logo-in-card h1 {
+    display: none;
+}
+
+/* Login Section - AGORA CENTRALIZADA VERTICALMENTE */
+.login-section {
+    width: 50%;
+    color: var(--text-gray);
+    padding: 40px 30px; 
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+}
+
+/* Título */
+.login-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    text-align: left;
+    text-shadow: 0 0 4px #fff, 0 0 15px var(--blue-neon-light), 0 0 30px var(--blue-neon);
+}
+
+/* Subtítulo pequeno */
+.login-subtitle {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+/* Formulários */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #ddd;
+    font-size: 0.85rem;
+}
+
+input[type="text"],
+input[type="password"] {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    /* Borda inicial sutil e maior arredondamento */
+    border: 1px solid #444; 
+    border-radius: 20px; 
+    background-color: #222;
+    color: #f0f0f0;
+    font-size: 1rem;
+    outline: none;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+input[type="text"]::placeholder,
+input[type="password"]::placeholder {
+    color: #666;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+    /* Foco neon mais nítido */
+    border-color: transparent; 
+    box-shadow: 0 0 8px var(--blue-neon-light), 0 0 15px rgba(33, 150, 243, 0.5); 
+}
+
+/* Botão */
+.btn-login {
+    padding: 14px;
+    background: var(--blue-neon);
+    border: none;
+    border-radius: 25px;
+    color: #e0e0e0; 
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--blue-neon-light), 0 6px 15px rgba(13, 71, 161, 0.7);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.btn-login:hover {
+    background: #094187;
+    box-shadow: 0 0 15px var(--blue-neon-light), 0 8px 25px rgba(9, 65, 135, 0.9);
+}
+
+/* Links de opções */
+.options {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+}
+
+.options a {
+    color: var(--link-blue);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.options a:hover {
+    color: var(--blue-neon-light); 
+}
+
+/* Controle de visibilidade dos formulários - AGORA COM FLEXBOX */
+.form {
+    display: none;
+    height: 100%; 
+}
+
+.form.active {
+    display: flex; 
+    flex-direction: column; 
+}
+
+/* Rodapé - AGORA COM NEON BRANCO E TAMANHO AUMENTADO */
+footer {
+    text-align: center;
+    padding: 15px 20px;
+    /* Cor de fundo transparente para ver o gradiente */
+    background: transparent; 
+    margin-top: auto;
+
+    /* MUDANÇA: Aumenta o tamanho da fonte */
+    font-size: 1.15rem; 
+    
+    /* MUDANÇA: Cor do texto base e brilho neon branco */
+    color: #f0f0f0; 
+    text-shadow: 0 0 3px #fff, 0 0 8px #fff; 
+}
+
+/* Destaque do Rodapé - AGORA COM NEON AZUL */
+.footer-highlight {
+    font-weight: 700;
+    color: var(--blue-neon-light); /* Cor base mais clara */
+    
+    /* MUDANÇA: Brilho neon azul mais intenso */
+    text-shadow: 0 0 5px var(--blue-neon-light), 0 0 15px var(--blue-neon);
+}
+
+/* ANIMAÇÃO NEON PULSE */
+@keyframes neon-pulse {
+    0% {
+        filter: drop-shadow(0 0 5px var(--blue-neon-light)) drop-shadow(0 0 15px var(--blue-neon));
+    }
+    50% {
+        filter: drop-shadow(0 0 8px var(--blue-neon-light)) drop-shadow(0 0 25px var(--blue-neon));
+    }
+    100% {
+        filter: drop-shadow(0 0 5px var(--blue-neon-light)) drop-shadow(0 0 15px var(--blue-neon));
+    }
+}
+
+
+/* Responsividade: Layout de duas colunas em telas grandes, uma coluna em telas menores */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        flex-direction: column; 
+        padding: 40px 30px; 
+    }
+    
+    .sidebar-area {
+        display: none; 
+        border-right: none;
+    }
+
+    .login-section {
+        width: 100%;
+        padding: 0; 
+    }
+    
+    footer {
+        font-size: 1rem; /* Ajusta o tamanho da fonte em telas menores */
+    }
+}
+
+@media (max-width: 450px) {
+    .container {
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 30px 20px;
+    }
+    
+    .sidebar-area {
+        display: none;
+    }
+
+    .login-title {
+        font-size: 1.5rem;
+    }
+
+    .login-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 20px;
+    }
+
+    .btn-login {
+        font-size: 1rem;
+        padding: 12px;
+    }
+
+    .options {
+        flex-direction: column;
+        gap: 12px;
+        font-size: 0.8rem;
+    }
+
+    .options a {
+        display: inline-block;
+        text-align: center;
+    }
+}
+
+/* Estilo para a mensagem de erro no login */
+.error-text {
+    color: #ff6b6b; /* Um tom de vermelho claro */
+    background-color: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-top: 15px;
+    display: none; /* Começa escondido */
+}

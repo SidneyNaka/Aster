@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aster - Início</title>
+    <link rel="icon" href="img/aster_transparent.png" type="image/png" />
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <aside class="sidebar-navigation">
+        <div class="sidebar-header">
+            <img src="img/logo.png" alt="Logo Aster" class="app-logo" />
+            <h2>Aster</h2>
+        </div>
+    
+        <div class="user-profile">
+            <img src="img/aster.png" alt="Foto de Perfil" class="profile-pic" />
+            <div class="profile-info">
+                <h4>Olá, Daniel Simões</h4>
+                <span class="user-status">Status: Online</span>
+            </div>
+        </div>
+        
+        <div id="profile-menu" class="profile-menu hidden">
+            <a href="#" class="menu-item" id="account-link">Conta</a>
+            <a href="#" id="profile-link" class="menu-item">Perfil</a>
+            
+            <hr />
+            <a href="login.html" class="menu-item logout-btn">Sair</a>
+        </div>
+        
+        <h3 class="sidebar-title">Navegação</h3>
+        <ul>
+            <li><a href="#" id="home-link"><img src="img/home.png" alt="Início" /> Início</a></li>
+            <li><a href="#" id="explore-songs-link"><img src="img/pesquisar.png" alt="Explorar" /> Explorar Músicas</a></li>
+            <li><a href="#" id="liked-songs-link"><img src="img/like.png" alt="Músicas Curtidas" /> Músicas Curtidas</a></li>
+        </ul>
+        <hr />
+
+        <h3 class="sidebar-title" id="sidebar-genres-title">Gêneros</h3>
+        <ul class="genres-list">
+            <li><a href="#"><img src="img/pop.png" alt="Pop" /> Pop</a></li>
+            <li><a href="#"><img src="img/rock.png" alt="Rock" /> Rock</a></li>
+            <li><a href="#"><img src="img/mpb.png" alt="MPB" /> MPB</a></li>
+            <li><a href="#"><img src="img/sertanejo.png" alt="Sertanejo" /> Sertanejo</a></li>
+            <li><a href="#"><img src="img/rap.png" alt="Rap" /> Rap</a></li>
+            <li><a href="#"><img src="img/jazz.png" alt="Jazz" /> Jazz</a></li>
+            <li><a href="#"><img src="img/eletronica.png" alt="Eletrônica" /> Eletrônica</a></li>
+            <li><a href="#"><img src="img/classico.png" alt="Clássico" /> Clássico</a></li>
+        </ul>
+        
+    </aside>
+
+    <main id="main-content">
+        <header class="header">
+            
+            <div class="header-left-controls">
+                <button class="menu-toggle-btn" id="menu-toggle-btn" aria-label="Abrir Menu Lateral">
+                    <img src="img/menu.png" alt="Menu" /> 
+                </button>
+            </div>
+
+            <div class="search-group">
+                <button class="home-btn" id="home-btn" aria-label="Voltar à Página Inicial">
+                    <img src="img/home.png" alt="Início" /> 
+                </button>
+                <div class="search-bar-container">
+                    <input type="text" placeholder="O que você quer ouvir?" />
+                    <button class="voice-search-btn" aria-label="Comando de Voz">
+                        <img src="img/microfone.png" alt="Comando de Voz" />
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mood-container">
+                <div class="mood-tab-fixed" role="button" tabindex="0" aria-label="Abrir barra de humor">
+                    <img src="img/dhumor.png" alt="Humor" />
+                </div>
+                <div class="mood-popup">
+                    <h4>Como você está se sentindo?</h4>
+                    <ul>
+                        <li class="menu-item">Feliz</li>
+                        <li class="menu-item">Triste</li>
+                        <li class="menu-item">Relaxado</li>
+                        <li class="menu-item">Energético</li>
+                        <li class="menu-item">Romântico</li>
+                        <li class="menu-item">Focado</li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <section class="playlists-section main-content-section">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">Minhas Playlists</h2>
+                </div>
+                <button class="new-playlist-btn">
+                    + Nova Playlist
+                </button>
+            </div>
+            <div class="playlists-grid">
+                </div>
+        </section>
+        
+        <section class="personalized-section playlists-section main-content-section">
+            <div class="section-title-wrap">
+                <div class="section-title-personalized">
+                    <span class="small-text">Feito para</span>
+                    <span class="user-highlight">Daniel Simões</span>
+                </div>
+            </div>
+            <div class="playlists-grid">
+                </div>
+        </section>
+        
+        <section class="recently-played-section playlists-section main-content-section">
+            <div class="section-title-wrap">
+                <h2 class="section-title">Tocados recentemente</h2>
+            </div>
+            <div class="playlists-grid music-grid">
+                 </div>
+        </section>
+
+        <section id="liked-songs-section" class="playlists-section main-content-section">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">Músicas Curtidas</h2>
+                </div>
+                </div>
+            <div class="playlists-grid music-grid">
+                </div>
+        </section>
+        
+        <div id="account-section" class="main-content-section hidden">
+            <h1 class="section-title" style="max-width: 600px; margin: 0 auto 25px auto;">Conta</h1>
+            <div class="account-settings-container">
+                
+                <a href="#" class="account-list-item" data-action="edit-info">
+                    <div class="icon-container"><img src="img/lapis.png" alt="Editar" /></div>
+                    <span>Editar informações pessoais</span>
+                    <div class="arrow-container">></div>
+                </a>
+                
+                <a href="#" class="account-list-item" data-action="change-password">
+                    <div class="icon-container"><img src="img/cadeado.png" alt="Alterar" /></div>
+                    <span>Alterar senha</span>
+                    <div class="arrow-container">></div>
+                </a>
+            </div>
+        </div>
+        
+        <div id="edit-info-section" class="main-content-section hidden">
+            <div class="edit-header">
+                <button class="back-to-account-btn" aria-label="Voltar para Conta">
+                    <img src="img/back.png" alt="Voltar" />
+                </button>
+                <h1 class="section-title-clean">Editar informações pessoais</h1>
+            </div>
+            
+            <form id="personal-info-form" class="edit-form">
+                
+                <div class="form-group">
+                    <label>Nome de usuário</label>
+                    <p class="readonly-value" id="edit-username-display">Carregando...</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-email">E-mail</label>
+                    <input type="email" id="edit-email" value="daniel.simoes@aster.com" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-telefone">Telefone (Opcional)</label>
+                    <input type="text" id="edit-telefone" placeholder="Ex: (11) 99999-8888" maxlength="15" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-gender">Sexo</label>
+                    <select id="edit-gender">
+                        <option value="masculino" selected>Masculino</option>
+                        <option value="feminino">Feminino</option>
+                        <option value="nao-informar">Não Informar</option>
+                    </select>
+                </div>
+                
+                <div class="form-group date-of-birth-group">
+                    <label>Data de nascimento</label>
+                    <div class="date-inputs">
+                        <input type="text" placeholder="Dia" value="15" maxlength="2" />
+                        <select>
+                            <option>Janeiro</option><option>Fevereiro</option><option>Março</option><option>Abril</option>
+                            <option selected>Maio</option><option>Junho</option><option>Julho</option><option>Agosto</option>
+                            <option>Setembro</option><option>Outubro</option><option>Novembro</option><option>Dezembro</option>
+                        </select>
+                        <input type="text" placeholder="Ano" value="1995" maxlength="4" />
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-country">País ou região</label>
+                    <select id="edit-country">
+                        <option value="br" selected>Brasil</option>
+                        <option value="eua">Estados Unidos</option>
+                        <option value="pt">Portugal</option>
+                    </select>
+                </div>
+                
+                <div class="form-group marketing-checkbox">
+                    <input type="checkbox" id="marketing-consent" checked />
+                    <label for="marketing-consent">Compartilhar meus dados cadastrais com os provedores de conteúdo do Aster para fins de marketing.</label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="profile-action-btn back-to-account-btn">Cancelar</button>
+                    <button type="submit" class="profile-action-btn save-btn">Salvar perfil</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="change-password-section" class="main-content-section hidden">
+            <div class="edit-header">
+                <button class="back-to-account-btn" aria-label="Voltar para Conta">
+                    <img src="img/back.png" alt="Voltar" />
+                </button>
+                <h1 class="section-title-clean">Mudar sua senha</h1>
+            </div>
+            
+            <form id="password-change-form" class="edit-form">
+                
+                <div class="form-group password-input-group">
+                    <label for="current-password">Senha atual</label>
+                    <input type="password" id="current-password" name="current-password" required />
+                    <span class="password-toggle-icon">Ø</span> 
+                </div>
+
+                <div class="form-group password-input-group">
+                    <label for="new-password">Nova senha</label>
+                    <input type="password" id="new-password" name="new-password" required />
+                    <span class="password-toggle-icon">Ø</span> 
+                </div>
+                
+                <div class="password-requirements">
+                    <p class="req-title">A senha deve ter pelo menos</p>
+                    <ul>
+                        <li id="req-letter">1 letra</li>
+                        <li id="req-number-special">1 número ou caractere especial (exemplo: # ? ! &)</li>
+                        <li id="req-length">10 caracteres</li>
+                    </ul>
+                </div>
+
+                <div class="form-group password-input-group">
+                    <label for="confirm-new-password">Repita a nova senha</label>
+                    <input type="password" id="confirm-new-password" name="confirm-new-password" required />
+                    <span class="password-toggle-icon">Ø</span> 
+                </div>
+
+                <div class="form-actions password-actions">
+                    <button type="button" class="profile-action-btn back-to-account-btn">Cancelar</button>
+                    <button type="submit" class="profile-action-btn save-btn define-password-btn">Defina a nova senha</button>
+                </div>
+            </form>
+        </div>
+        <div id="search-container" class="search-container hidden">
+            <section class="search-results-section">
+                <div class="search-results-header">
+                    <h2 class="section-title">Resultados da Pesquisa</h2>
+                    <button class="back-to-home-btn">Voltar ao Início</button>
+                </div>
+                
+                <div class="search-filters">
+                    <button class="filter-btn active">Tudo</button>
+                    <button class="filter-btn">Álbuns</button>
+                    <button class="filter-btn">Artistas</button>
+                    <button class="filter-btn">Músicas</button>
+                    <button class="filter-btn">Playlists</button>
+                    <button class="filter-btn">Podcasts e programas</button>
+                    <button class="filter-btn">Gêneros e estados de espírito</button>
+                    <button class="filter-btn">Perfis</button>
+                </div>
+                <div class="search-results-list">
+                    </div>
+            </section>
+        </div>
+        
+        <div id="profile-section" class="main-content-section hidden">
+            <form id="edit-profile-form">
+                <div class="profile-header">
+                    <label for="profile-avatar-input" class="avatar-edit-label">
+                        <img id="profile-avatar-preview" src="img/user_profile_pic.jpg" alt="Foto de Perfil do Usuário" class="profile-avatar" />
+                        <span class="change-photo-text">CLIQUE PARA TROCAR</span>
+                        <input type="file" id="profile-avatar-input" name="profile-avatar" accept="image/*" class="file-input-hidden" />
+                    </label>
+                    <div class="profile-titles">
+                        <span class="profile-type">Perfil</span>
+                        <h1 id="profile-username-display" class="profile-username">Carregando...</h1>
+                        <p class="profile-stats">0 playlists públicas • 0 seguindo</p>
+                    </div>
+                </div>
+
+                <div class="profile-actions-bar">
+                    <button type="submit" class="profile-action-btn save-btn">Salvar Alterações</button>
+                    <button type="button" class="profile-action-btn copy-link-btn">Copiar link do perfil</button>
+                </div>
+            </form>
+
+            <div class="profile-content-grid">
+                <section class="profile-playlists-section">
+                    <h2 class="content-title">Playlists públicas</h2>
+                    <div id="profile-playlists-grid" class="profile-playlists-grid">
+                        <p id="no-playlists-message" style="color: var(--cinza-claro);">Nenhuma playlist pública encontrada.</p>
+                    </div>
+                </section>
+
+                <section class="profile-following-section hidden">
+                    <h2 class="content-title">Seguindo</h2>
+                    <div id="profile-following-list" class="profile-following-list">
+                        </div>
+                </section>
+            </div>
+            
+        </div>
+
+        <div id="playlist-view-section" class="main-content-section hidden">
+
+            <div class="playlist-view-header">
+                <img src="img/capas/album-enemy.jpg" alt="Capa da Playlist" id="playlist-view-cover">
+                <div class="playlist-view-details">
+                    <span class="profile-type">Playlist</span>
+                    <h1 id="playlist-view-name">Nome da Playlist</h1>
+                    <p id="playlist-view-description">Descrição da playlist aqui.</p>
+                </div>
+                <div class="playlist-view-actions">
+                    <button class="profile-action-btn delete-btn" id="btn-delete-playlist">Deletar Playlist</button>
+                    <button class="back-to-home-btn" id="back-from-playlist-view">Voltar</button>
+                </div>
+            </div> 
+            <div id="playlist-view-songs-container">
+            </div>
+
+            <hr style="margin: 40px 0;">
+
+            <div class="add-songs-to-playlist-area">
+                <div class="section-title-wrap">
+                    <h2 class="section-title">Vamos encontrar algo para sua playlist</h2>
+                </div>
+                <div class="search-bar-container">
+                    <input type="text" id="playlist-view-search-input" placeholder="Buscar músicas ou artistas..." />
+                </div>
+                <div id="playlist-view-search-results" class="search-results-list">
+                </div>
+            </div>
+
+        </div> <section id="all-songs-section" class="main-content-section hidden">
+            <div class="section-header">
+                <h2 class="section-title">Todas as Músicas</h2>
+            </div>
+            <div id="all-songs-container" class="search-results-list">
+                </div>
+    </section><section id="genre-view-section" class="main-content-section hidden">
+        <div class="section-header">
+            <h2 class="section-title" id="genre-view-title">Gênero</h2>
+        </div>
+        <div id="genre-view-container" class="playlists-grid music-grid">
+            </div>
+    </section>
+    </main>
+
+    <div class="music-player-fixed" role="region" aria-label="Player de música">
+        <div class="playback-bar-container">
+            <div class="playback-progress-bar">
+                <span class="time-display" id="current-time">0:00</span>
+                <input type="range" id="seek-slider" class="seek-slider" min="0" max="100" value="0" step="0.1" />
+                <span class="time-display" id="total-duration">0:00</span>
+            </div>
+        </div>
+        
+        <div class="media-controls">
+            <div class="song-info-area">
+                <div class="album-art-small">
+                    <img src="img/album.png" alt="Capa do Álbum" />
+                </div>
+                <div class="song-info-small">
+                    <h4 class="song-title">Título da Música</h4>
+                    <h5 class="artist-name">Nome do Artista</h5>
+                </div>
+                <div class="song-actions">
+                    <button class="control-btn like-btn" aria-label="Curtir Música">
+                        <img src="img/like.png" alt="Curtir" /> 
+                    </button>
+                    <button class="control-btn queue-btn" aria-label="Adicionar à Fila">
+                        <img src="img/dislike.png" alt="Dislike" /> 
+                    </button>
+                </div>
+            </div>
+
+            <div class="player-controls-small">
+                <button class="control-btn back-btn" aria-label="Anterior">
+                    <img src="img/back.png" alt="Anterior" />
+                </button>
+                <button class="control-btn play-btn" id="play-pause-btn" aria-label="Tocar">
+                    <img src="img/play.png" alt="Tocar" />
+                </button>
+                <button class="control-btn next-btn" aria-label="Próxima">
+                    <img src="img/next.png" alt="Próxima" />
+                </button>
+            </div>
+            
+            <div class="volume-controls">
+                <button class="control-btn mute-btn">
+                    <img src="img/volume.png" alt="Volume" class="volume-icon" />
+                </button>
+                <input type="range" class="volume-slider" min="0" max="100" value="100" />
+            </div>
+        </div>
+    </div>
+
+    <div id="add-songs-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Adicionar Músicas à Playlist</h2>
+            <div class="modal-list">
+                <div class="selectable-song-item" data-song-id="1">
+                    <input type="checkbox" id="song-1">
+                    <label for="song-1">
+                        <img src="img/album.png" alt="Capa" class="song-art" />
+                        <div class="song-details">
+                            <h4>Música #1: Dança na Chuva</h4>
+                            <span>Artista A - 3:15</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="selectable-song-item" data-song-id="2">
+                    <input type="checkbox" id="song-2">
+                    <label for="song-2">
+                        <img src="img/album.png" alt="Capa" class="song-art" />
+                        <div class="song-details">
+                            <h4>Música #2: Jazz Suave</h4>
+                            <span>Artista B - 4:02</span>
+                        </div>
+                    </label>
+                </div>
+                <div class="selectable-song-item" data-song-id="3">
+                    <input type="checkbox" id="song-3">
+                    <label for="song-3">
+                        <img src="img/album.png" alt="Capa" class="song-art" />
+                        <div class="song-details">
+                            <h4>Música #3: Rock Pesado</h4>
+                            <span>Artista C - 2:58</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel">Cancelar</button>
+                <button class="btn-add-selected">Adicionar Selecionadas</button>
+            </div>
+        </div>
+    </div>
+    <div id="create-playlist-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Criar Nova Playlist</h2>
+            <form id="create-playlist-form">
+                <div class="playlist-cover-upload">
+                    <label for="playlist-cover-input" class="cover-label">
+                        <img id="cover-preview" src="img/new.png" alt="Capa da Playlist" class="cover-preview" />
+                        <span>Escolha uma Capa</span>
+                    </label>
+                    <input type="file" id="playlist-cover-input" name="playlist-cover" accept="image/*" class="file-input-hidden" />
+                </div>
+                <div class="input-group">
+                    <label for="playlist-name">Nome da Playlist</label>
+                    <input type="text" id="playlist-name" name="playlist-name" required maxlength="50" />
+                </div>
+                <div class="input-group">
+                    <label for="playlist-description">Descrição (Opcional)</label>
+                    <input type="text" id="playlist-description" name="playlist-description" maxlength="100" />
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel-create">Cancelar</button>
+                    <button type="button" id="btn-create-playlist-final" class="btn-create-final">Criar Playlist</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="select-playlist-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Adicionar à playlist</h2>
+            <div id="playlist-selection-list" class="modal-list">
+                </div>
+            <div class="modal-actions">
+                <button id="btn-cancel-select-playlist" class="btn-cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <audio id="audio-player" src=""></audio>
+    <script src="js/script.js"></script>
+</body>
+</html>
