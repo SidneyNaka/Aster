@@ -292,15 +292,16 @@ app.get('/musicas/humor/:nomeHumor', (req, res) => {
 
     // Query que junta as tabelas para encontrar músicas pelo nome do humor
     const query = `
-        SELECT m.*, a.nome AS nome_autor
+        SELECT m.*, GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
         FROM musica AS m
         JOIN musica_humor AS mh ON m.id = mh.musica_id
         JOIN humor AS h ON mh.humor_id = h.id
         JOIN musica_autor AS ma ON m.id = ma.musica_id
         JOIN autor AS a ON ma.autor_id = a.id
         WHERE h.nome = ?
-        ORDER BY RAND() -- Ordena aleatoriamente para dar variedade
-        LIMIT 10;       -- Limita a 10 resultados para a seção não ficar muito grande
+        GROUP BY m.id
+        ORDER BY RAND()
+        LIMIT 10;
     `;
 
     db.query(query, [nomeHumor], (err, results) => {
@@ -317,13 +318,14 @@ app.get('/musicas/genero/:nomeGenero', (req, res) => {
 
     // Query que junta as tabelas para encontrar músicas pelo nome do gênero
     const query = `
-        SELECT m.*, a.nome AS nome_autor
+        SELECT m.*, GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
         FROM musica AS m
         JOIN musica_genero AS mg ON m.id = mg.musica_id
         JOIN genero AS g ON mg.genero_id = g.id
         JOIN musica_autor AS ma ON m.id = ma.musica_id
         JOIN autor AS a ON ma.autor_id = a.id
-        WHERE g.nome = ?;
+        WHERE g.nome = ?
+        GROUP BY m.id;
     `;
 
     db.query(query, [nomeGenero], (err, results) => {
@@ -346,10 +348,11 @@ app.get('/musicas', (req, res) => {
             m.duracao, 
             m.url_musica, 
             m.url_capa, 
-            a.nome AS nome_autor 
+            GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
         FROM musica AS m
         JOIN musica_autor AS ma ON m.id = ma.musica_id
-        JOIN autor AS a ON ma.autor_id = a.id;
+        JOIN autor AS a ON ma.autor_id = a.id
+        GROUP BY m.id;
     `;
 
     db.query(query, (err, results) => {
@@ -414,13 +417,14 @@ app.get('/musicas/curtidas', (req, res) => {
 
         // Query que busca os detalhes das músicas curtidas e ordena pela data
         const query = `
-            SELECT m.*, a.nome AS nome_autor
+            SELECT m.*, GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
             FROM musicas_curtidas mc
             JOIN musica m ON mc.musica_id = m.id
             JOIN musica_autor ma ON m.id = ma.musica_id
             JOIN autor a ON ma.autor_id = a.id
             WHERE mc.usuario_id = ?
-            ORDER BY mc.data_curtida DESC;  -- Ordena pelas mais recentes primeiro
+            GROUP BY m.id, mc.data_curtida
+            ORDER BY mc.data_curtida DESC;
         `;
 
         db.query(query, [usuarioId], (err, results) => {
@@ -501,13 +505,14 @@ app.get('/playlists/:id', (req, res) => {
 
             // Se encontrou, busca as músicas dessa playlist
             const songsQuery = `
-                SELECT m.*, a.nome AS nome_autor
+                SELECT m.*, GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
                 FROM playlist_musicas pm
                 JOIN musica m ON pm.musica_id = m.id
                 JOIN musica_autor ma ON m.id = ma.musica_id
                 JOIN autor a ON ma.autor_id = a.id
                 WHERE pm.playlist_id = ?
-                ORDER BY pm.ordem; -- Usaremos a coluna 'ordem' no futuro
+                GROUP BY m.id, pm.ordem
+                ORDER BY pm.ordem;
             `;
             db.query(songsQuery, [playlistId], (err, songsResults) => {
                 if (err) return res.status(500).json({ message: "Erro ao buscar músicas da playlist." });
@@ -706,7 +711,7 @@ app.get('/historico/recentes', (req, res) => {
 
         // Query complexa para buscar as músicas recentes, sem repetições e ordenadas
         const query = `
-            SELECT m.*, a.nome AS nome_autor
+            SELECT m.*, GROUP_CONCAT(a.nome SEPARATOR ', ') AS nome_autor
             FROM (
                 SELECT musica_id, MAX(data_tocada) AS max_data
                 FROM historico_reproducao
@@ -716,8 +721,9 @@ app.get('/historico/recentes', (req, res) => {
             JOIN musica AS m ON ultimas_tocadas.musica_id = m.id
             JOIN musica_autor AS ma ON m.id = ma.musica_id
             JOIN autor AS a ON ma.autor_id = a.id
+            GROUP BY m.id, ultimas_tocadas.max_data
             ORDER BY ultimas_tocadas.max_data DESC
-            LIMIT 20; 
+            LIMIT 20;
         `;
 
         db.query(query, [usuarioId], (err, results) => {
