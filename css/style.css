@@ -1255,9 +1255,9 @@ body {
 }
 
 .profile-playlists-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+    display: flex;      /* MUDADO de 'grid' para 'flex' */
+    flex-wrap: wrap;    /* Permite que os cards quebrem para a próxima linha */
+    gap: 20px;          /* Mantém o espaçamento entre os cards */
 }
 
 .profile-playlist-card {
@@ -1268,6 +1268,7 @@ body {
     flex-direction: column;
     cursor: pointer;
     transition: background-color 0.2s, box-shadow 0.3s;
+    width: 170px;
 }
 
 .profile-playlist-card:hover {
