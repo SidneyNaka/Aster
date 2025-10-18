@@ -954,6 +954,14 @@ body {
     border-radius: 2px;
     cursor: pointer;
     margin: 0;
+
+    /* Cria um fundo gradiente. A variável --seek-before-width controlará o preenchimento */
+    background: linear-gradient(to right, 
+        var(--azul-claro) 0%, 
+        var(--azul-claro) var(--seek-before-width, 0%), 
+        #333 var(--seek-before-width, 0%), 
+        #333 100%
+    );
 }
 
 .seek-slider::-webkit-slider-thumb {
@@ -1825,10 +1833,6 @@ body {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    /* Adicionar seta customizada (opcional, apenas para selects) */
-    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><path fill="%23b3b3b3" d="M5 6l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
 }
 
 .edit-form input:focus,
@@ -1837,23 +1841,16 @@ body {
     box-shadow: 0 0 8px rgba(30, 144, 255, 0.5);
 }
 
-/* Ícone de Toggle de Senha (Visual da Imagem) */
 .password-toggle-icon {
     position: absolute;
-    right: 15px;
-    top: 50%;
+    right: 5px;
+    top: 55%;
     transform: translateY(-50%);
+    width: 20px; /* Define a largura da imagem */
+    height: auto; /* Mantém a proporção da imagem */
+    opacity: 0.7; /* Deixa o ícone um pouco mais sutil */
     cursor: pointer;
-    font-size: 1.5rem; /* Ajuste o tamanho conforme a imagem */
-    color: var(--cinza-claro);
-    
-    /* SIMULAÇÃO do ícone de Proibido/Olho - usando Unicode */
-    content: "Ø"; 
-    font-size: 1.3rem;
-    line-height: 1;
-    top: 55%; /* Ajuste fino */
-    
-    transition: color 0.2s;
+    transition: opacity 0.2s;
 }
 
 .password-toggle-icon:hover {
@@ -2223,4 +2220,50 @@ body {
     100% {
         box-shadow: 0 0 0 0 rgba(30, 144, 255, 0);
     }
+}
+
+/* --- ESTILOS CORRIGIDOS PARA VALIDAÇÃO DE SENHA --- */
+
+.password-requirements ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+/* Transforma o item da lista em um container Flexbox para alinhamento perfeito */
+.password-requirements li {
+    display: flex;              /* NOVO: Usa Flexbox para o alinhamento principal */
+    align-items: center;        /* NOVO: Alinha verticalmente o círculo e o texto */
+    gap: 10px;                  /* NOVO: Cria um espaçamento entre o círculo e o texto */
+    margin-bottom: 8px;
+    color: var(--cinza-claro);
+    transition: color 0.3s;
+}
+
+/* Estilo padrão (inválido) para o círculo */
+.password-requirements li::before {
+    content: '✖';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ff4d4d; /* Vermelho para inválido */
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background-color 0.3s, content 0.3s;
+    
+    /* Flexbox para centralizar o ícone DENTRO do círculo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Impede que o círculo encolha */
+}
+
+/* Estilo para quando o critério é VÁLIDO */
+.password-requirements li.valid {
+    color: var(--branco); /* Deixa o texto branco/destacado */
+}
+
+.password-requirements li.valid::before {
+    content: '✔';
+    background-color: var(--azul-claro); /* Azul para válido */
 }

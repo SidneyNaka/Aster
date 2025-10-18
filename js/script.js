@@ -796,21 +796,24 @@ function initializePageFunctionality(initialLikedIds) {
         passwordChangeForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            // Verifica se todos os critérios de senha são válidos
+            const allCriteriaValid = Object.values(criteriaList).every(item => item.classList.contains('valid'));
+
+            if (!allCriteriaValid) {
+                alert('A nova senha não atende a todos os requisitos de segurança.');
+                return; // Impede o envio do formulário
+            }
+
             const currentPassword = document.getElementById('current-password').value;
             const newPassword = document.getElementById('new-password').value;
             const confirmNewPassword = document.getElementById('confirm-new-password').value;
 
-            // Validação no frontend
             if (newPassword !== confirmNewPassword) {
                 alert('A nova senha e a confirmação não coincidem.');
                 return;
             }
 
-            if (!currentPassword || !newPassword) {
-                alert('Todos os campos são obrigatórios.');
-                return;
-            }
-
+            // O fetch só é executado se todas as validações passarem
             fetch('http://localhost:3000/perfil/change-password', {
                 method: 'POST',
                 headers: {
@@ -824,6 +827,8 @@ function initializePageFunctionality(initialLikedIds) {
                 alert(data.message);
                 if (data.success) {
                     passwordChangeForm.reset(); // Limpa o formulário
+                    // Reseta os indicadores visuais para o estado inicial
+                    Object.values(criteriaList).forEach(item => item.classList.remove('valid'));
                     showSection('account-section'); // Volta para a tela da conta
                 }
             })
@@ -1141,6 +1146,15 @@ function initializePageFunctionality(initialLikedIds) {
         if (!isSeeking) {
             seekSlider.value = audioPlayer.currentTime;
             currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+
+            // --- INÍCIO DA ADIÇÃO ---
+            // Calcula a porcentagem de progresso
+            if (audioPlayer.duration) {
+                const progressPercent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                // Atualiza a variável CSS no elemento da barra
+                seekSlider.style.setProperty('--seek-before-width', `${progressPercent}%`);
+            }
+            // --- FIM DA ADIÇÃO ---
         }
     });
     seekSlider.addEventListener('mousedown', () => { isSeeking = true; });
@@ -1275,6 +1289,62 @@ function initializePageFunctionality(initialLikedIds) {
             setActiveLink(homeLink); // Reutiliza o link 'Início' para marcar como ativo
         });
     }
+
+    // --- LÓGICA DE VALIDAÇÃO DE SENHA EM TEMPO REAL ---
+    const newPasswordInput = document.getElementById('new-password');
+    const criteriaList = {
+        length: document.getElementById('length-check'),
+        lowercase: document.getElementById('lowercase-check'),
+        uppercase: document.getElementById('uppercase-check'),
+        number: document.getElementById('number-check'),
+        special: document.getElementById('special-check')
+    };
+
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', () => {
+            const password = newPasswordInput.value;
+
+            // Critério 1: Comprimento
+            const isLengthValid = password.length >= 8;
+            criteriaList.length.classList.toggle('valid', isLengthValid);
+
+            // Critério 2: Letra Minúscula
+            const hasLowercase = /[a-z]/.test(password);
+            criteriaList.lowercase.classList.toggle('valid', hasLowercase);
+
+            // Critério 3: Letra Maiúscula
+            const hasUppercase = /[A-Z]/.test(password);
+            criteriaList.uppercase.classList.toggle('valid', hasUppercase);
+
+            // Critério 4: Número
+            const hasNumber = /[0-9]/.test(password);
+            criteriaList.number.classList.toggle('valid', hasNumber);
+
+            // Critério 5: Caractere Especial
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            criteriaList.special.classList.toggle('valid', hasSpecial);
+        });
+    }
+
+    // --- LÓGICA PARA MOSTRAR/OCULTAR SENHA ---
+    const passwordToggleIcons = document.querySelectorAll('.password-toggle-icon');
+
+    passwordToggleIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            // Encontra o campo de senha associado ao ícone
+            const passwordInput = icon.previousElementSibling;
+
+            if (passwordInput.type === 'password') {
+                // Mostra a senha
+                passwordInput.type = 'text';
+                icon.src = 'img/eye-closed.png'; // Altera para o ícone de olho riscado
+            } else {
+                // Oculta a senha
+                passwordInput.type = 'password';
+                icon.src = 'img/eye-open.png'; // Altera de volta para o ícone de olho aberto
+            }
+        });
+    });
 
     carregarTocadasRecentemente();
     carregarMusicasCurtidas();

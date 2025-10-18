@@ -277,12 +277,19 @@ app.post('/perfil/change-password', (req, res) => {
             const newHashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
             // 4. Atualizar a senha no banco
-            db.query("UPDATE usuario SET senha = ? WHERE id = ?", [newHashedPassword, usuarioId], (updateErr, updateResults) => {
-                if (updateErr) {
-                    return res.status(500).json({ success: false, message: 'Erro ao atualizar a senha.' });
-                }
-                res.json({ success: true, message: 'Senha alterada com sucesso!' });
-            });
+            db.query("UPDATE usuario SET senha = ? WHERE id = ?", [newHashedPassword, usuarioId], (updateErr, updateResults) => {
+                if (updateErr) {
+                    return res.status(500).json({ success: false, message: 'Erro ao atualizar a senha.' });
+                }
+
+                    // --- ADIÇÃO: Verificação de segurança ---
+                    if (updateResults.affectedRows === 0) {
+                        return res.status(404).json({ success: false, message: 'Usuário não encontrado para atualização.' });
+                    }
+                    // --- FIM DA ADIÇÃO ---
+
+                res.json({ success: true, message: 'Senha alterada com sucesso!' });
+            });
         });
     });
 });
