@@ -10,22 +10,20 @@
 :root {
     --background-dark: #121212;
     --background-gray: rgba(18, 18, 18, 0.85);
-    --blue-neon: #0d47a1; /* Azul neon base (escuro) */
-    --blue-neon-light: #2196F3; /* Azul mais claro para o brilho interno */
+    --blue-neon: #0d47a1;
+    --blue-neon-light: #2196F3;
     --text-gray: #b3b3b3;
     --input-bg: #282828;
     --input-border: #404040;
-    --link-blue: #0d47a1; /* Azul escuro */
-    --link-blue-hover: #094187; /* Azul escuro mais forte */
+    --link-blue: #0d47a1;
+    --link-blue-hover: #094187;
 }
 
 /* Fundo com imagem */
 body, html {
     height: 100%;
-    /* ATUALIZE AQUI O NOME DA SUA IMAGEM: background: url(img/blue_moon (2).jpg) ... */
     background: url('img/blue_moon\ \(2\).jpg') no-repeat center center fixed; 
     backdrop-filter: blur(5px);
-    
     background-size: cover;
     display: flex;
     flex-direction: column;
@@ -40,12 +38,9 @@ body::before {
     content: "";
     position: fixed;
     inset: 0;
-    
-    /* Gradiente radial que foca no centro */
     background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%);
-    
-    backdrop-filter: blur(6px);       /* embaçamento */
-    -webkit-backdrop-filter: blur(6px); /* compatibilidade com Safari */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: -1;
 }
 
@@ -60,10 +55,9 @@ main {
 }
 
 .container {
-    width: 760px;
+    max-width: 760px; /* CORRIGIDO: max-width ao invés de width fixo */
+    width: 100%; /* ADICIONADO: Permite que o container se ajuste */
     display: flex;
-    
-    /* Gradiente radial que foca no centro */
     background: radial-gradient(circle at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.95) 100%);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(20px);
@@ -71,7 +65,6 @@ main {
     border: 2px solid var(--blue-neon); 
     padding: 0; 
     box-sizing: border-box;
-    
 }
 
 /* NOVA ÁREA LATERAL - Centraliza a logo */
@@ -81,7 +74,6 @@ main {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    
     background-color: transparent; 
     border-top-left-radius: 13px; 
     border-bottom-left-radius: 13px; 
@@ -107,7 +99,6 @@ main {
     width: 50%;
     color: var(--text-gray);
     padding: 40px 30px; 
-    
     display: flex;
     flex-direction: column;
     justify-content: center; 
@@ -135,6 +126,7 @@ main {
 form {
     display: flex;
     flex-direction: column;
+    gap: 15px;
 }
 
 label {
@@ -147,8 +139,7 @@ label {
 input[type="text"],
 input[type="password"] {
     padding: 12px 15px;
-    margin-bottom: 20px;
-    /* Borda inicial sutil e maior arredondamento */
+    margin-bottom: 0;
     border: 1px solid #444; 
     border-radius: 20px; 
     background-color: #222;
@@ -156,6 +147,7 @@ input[type="password"] {
     font-size: 1rem;
     outline: none;
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    width: 100%; /* ADICIONADO: Garante que o input ocupe toda a largura */
 }
 
 input[type="text"]::placeholder,
@@ -165,7 +157,6 @@ input[type="password"]::placeholder {
 
 input[type="text"]:focus,
 input[type="password"]:focus {
-    /* Foco neon mais nítido */
     border-color: transparent; 
     box-shadow: 0 0 8px var(--blue-neon-light), 0 0 15px rgba(33, 150, 243, 0.5); 
 }
@@ -225,14 +216,9 @@ input[type="password"]:focus {
 footer {
     text-align: center;
     padding: 15px 20px;
-    /* Cor de fundo transparente para ver o gradiente */
     background: transparent; 
     margin-top: auto;
-
-    /* MUDANÇA: Aumenta o tamanho da fonte */
     font-size: 1.15rem; 
-    
-    /* MUDANÇA: Cor do texto base e brilho neon branco */
     color: #f0f0f0; 
     text-shadow: 0 0 3px #fff, 0 0 8px #fff; 
 }
@@ -240,9 +226,7 @@ footer {
 /* Destaque do Rodapé - AGORA COM NEON AZUL */
 .footer-highlight {
     font-weight: 700;
-    color: var(--blue-neon-light); /* Cor base mais clara */
-    
-    /* MUDANÇA: Brilho neon azul mais intenso */
+    color: var(--blue-neon-light);
     text-shadow: 0 0 5px var(--blue-neon-light), 0 0 15px var(--blue-neon);
 }
 
@@ -258,7 +242,6 @@ footer {
         filter: drop-shadow(0 0 5px var(--blue-neon-light)) drop-shadow(0 0 15px var(--blue-neon));
     }
 }
-
 
 /* Responsividade: Layout de duas colunas em telas grandes, uma coluna em telas menores */
 @media (max-width: 768px) {
@@ -279,7 +262,7 @@ footer {
     }
     
     footer {
-        font-size: 1rem; /* Ajusta o tamanho da fonte em telas menores */
+        font-size: 1rem;
     }
 }
 
@@ -323,12 +306,185 @@ footer {
 
 /* Estilo para a mensagem de erro no login */
 .error-text {
-    color: #ff6b6b; /* Um tom de vermelho claro */
+    color: #ff6b6b;
     background-color: rgba(255, 107, 107, 0.1);
     border: 1px solid #ff6b6b;
     padding: 10px;
     border-radius: 5px;
     text-align: center;
     margin-top: 15px;
-    display: none; /* Começa escondido */
+    display: none;
+}
+
+/* --- ESTILOS PARA VALIDAÇÃO DE CAMPO --- */
+.login-section input[type="text"],
+.login-section input[type="password"] {
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.login-section input.valid {
+    border-color: var(--blue-neon-light);
+    box-shadow: 0 0 5px var(--blue-neon-light);
+}
+
+.login-section input.invalid {
+    border-color: #ff4d4d;
+    box-shadow: 0 0 5px #ff4d4d;
+}
+
+/* --- ESTILOS PARA VALIDAÇÃO E ÍCONE DE SENHA --- */
+.password-input-group {
+    position: relative;
+    width: 100%; /* ADICIONADO: Garante que o grupo ocupe toda a largura */
+}
+
+.password-input-group input {
+    width: 100%; /* ADICIONADO: Input ocupa toda a largura do grupo */
+    padding-right: 45px; /* ADICIONADO: Espaço para o ícone */
+}
+
+.password-toggle-icon {
+    position: absolute;
+    right: 15px; /* CORRIGIDO: Posicionado corretamente */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: auto;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.password-toggle-icon:hover {
+    opacity: 1;
+}
+
+.password-requirements {
+    margin-top: 0; 
+    margin-bottom: 5px; /* REDUZIDO: de 10px para 5px */
+}
+
+.password-requirements ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.password-requirements li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    color: #888;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.password-requirements li::before {
+    content: '✖';
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #ff4d4d;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    transition: background-color 0.3s, content 0.3s;
+}
+
+.password-requirements li.valid {
+    color: #fff;
+}
+
+.password-requirements li.valid::before {
+    content: '✔';
+    background-color: var(--blue-neon-light);
+}
+
+/* ===== AJUSTES ESPECÍFICOS PARA O FORMULÁRIO DE CRIAR CONTA ===== */
+#create-account-form form {
+    gap: 10px;
+}
+
+#create-account-form label {
+    margin-bottom: 4px;
+}
+
+#create-account-form input[type="text"],
+#create-account-form input[type="password"] {
+    padding: 10px 14px;
+    font-size: 0.95rem;
+}
+
+#create-account-form .password-requirements {
+    margin-top: 5px;
+    margin-bottom: 3px; /* REDUZIDO: de 5px para 3px */
+}
+
+#create-account-form .password-requirements li {
+    margin-bottom: 3px;
+    font-size: 0.85rem;
+}
+
+#create-account-form .btn-login {
+    margin-top: 5px; /* REDUZIDO: de 10px para 5px */
+}
+
+/* Melhora responsividade do card em telas menores */
+@media (max-width: 992px) {
+    .container {
+        width: 90%;
+        flex-direction: column;
+    }
+
+    .sidebar-area {
+        display: none; /* ADICIONADO: Esconde sidebar em tablets */
+    }
+
+    .login-section {
+        width: 100%;
+        padding: 25px 20px;
+    }
+
+    #create-account-form form {
+        gap: 8px;
+    }
+
+    #create-account-form input[type="text"],
+    #create-account-form input[type="password"] {
+        font-size: 0.9rem;
+        padding: 9px 12px;
+    }
+
+    #create-account-form .btn-login {
+        margin-top: 8px;
+        font-size: 1rem;
+    }
+}
+
+/* Ajusta ainda mais para celulares pequenos */
+@media (max-width: 480px) {
+    #create-account-form form {
+        gap: 6px;
+    }
+
+    #create-account-form label {
+        font-size: 0.8rem;
+    }
+
+    #create-account-form input {
+        font-size: 0.85rem;
+        padding: 8px 12px;
+    }
+
+    #create-account-form .password-requirements li {
+        font-size: 0.8rem;
+    }
+
+    #create-account-form .btn-login {
+        margin-top: 5px;
+    }
 }

@@ -1,5 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+// --- NOVA FUNÇÃO PARA DEFINIR O ESTADO INICIAL DA SEÇÃO ---
+function setInitialPersonalizedSection(userName) {
+    const container = document.getElementById('journey-container');
+    const subtitle = document.getElementById('journey-subtitle');
+    const highlight = document.getElementById('journey-highlight');
+
+    if (subtitle) subtitle.textContent = 'Sua Jornada de Humor';
+    if (highlight) highlight.textContent = userName;
+
+    if (container) {
+        container.innerHTML = `
+            <p style="color: var(--cinza-claro); font-size: 1rem; text-align: center; grid-column: 1 / -1;">
+                Clique no ícone de humor no topo da página para começar sua jornada sonora.
+            </p>
+        `;
+    }
+}
+
 // GATEKEEPER: VERIFICAÇÃO DE LOGIN E CARREGAMENTO DE DADOS DO USUÁRIO
 const token = localStorage.getItem('token');
 if (!token) {
@@ -73,6 +91,8 @@ fetch('http://localhost:3000/perfil', {
             formDateInputs.querySelector('input[placeholder="Ano"]').value = year;
         }
     }
+
+    setInitialPersonalizedSection(userData.nome_usuario);
 
     fetch('http://localhost:3000/musicas/curtidas/ids', { headers: { 'Authorization': `Bearer ${token}` } })
         .then(res => res.json())
@@ -163,6 +183,10 @@ function initializePageFunctionality(initialLikedIds) {
     const genreViewSection = document.getElementById('genre-view-section');
     const genreViewTitle = document.getElementById('genre-view-title');
     const genreViewContainer = document.getElementById('genre-view-container');
+    const moodOrigin = document.getElementById('mood-origin');
+    const moodDestination = document.getElementById('mood-destination');
+    const moodBackBtn = document.getElementById('mood-back-btn');
+    let moodOriginSelection = null; 
 
     function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
@@ -717,33 +741,44 @@ function initializePageFunctionality(initialLikedIds) {
         personalInfoForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // Coleta dos dados do formulário
+            // ... coleta de email, sexo, pais, etc ...
             const email = document.getElementById('edit-email').value;
             const sexo = document.getElementById('edit-gender').value;
             const pais = document.getElementById('edit-country').value;
             const consentimento_marketing = document.getElementById('marketing-consent').checked;
-
-            // --- LÓGICA DO TELEFONE ATUALIZADA ---
             const telefoneInput = document.getElementById('edit-telefone');
-            const telefoneNumeros = telefoneInput.value.replace(/\D/g, ''); // Pega apenas os números
+            const telefoneNumeros = telefoneInput.value.replace(/\D/g, '');
 
-            // Validação: se o campo não estiver vazio, deve ter 10 ou 11 dígitos.
             if (telefoneNumeros.length > 0 && (telefoneNumeros.length < 10 || telefoneNumeros.length > 11)) {
                 alert('Por favor, insira um número de telefone válido com DDD (10 ou 11 dígitos).');
-                return; // Impede o envio do formulário
+                return;
             }
-            // --- FIM DA LÓGICA DO TELEFONE ---
+            
+            // Monta a data
+            const formDateInputs = document.querySelector('.date-inputs');
+            const diaInput = formDateInputs.querySelector('input[placeholder="Dia"]');
+            const mesSelect = formDateInputs.querySelector('select');
+            const anoInput = formDateInputs.querySelector('input[placeholder="Ano"]');
 
-            // Monta a data no formato AAAA-MM-DD
-            const formDateInputs = document.querySelector('.date-inputs');
-            const dia = formDateInputs.querySelector('input[placeholder="Dia"]').value.padStart(2, '0');
-            const mesIndex = formDateInputs.querySelector('select').selectedIndex;
-            const mes = (mesIndex + 1).toString().padStart(2, '0'); // +1 porque index é 0-11
-            const ano = formDateInputs.querySelector('input[placeholder="Ano"]').value;
-            const data_nascimento = `${ano}-${mes}-${dia}`;
+            // --- INÍCIO DA VALIDAÇÃO DE DATA ---
+            const dia = parseInt(diaInput.value, 10);
+            const mesIndex = mesSelect.selectedIndex;
+            const ano = parseInt(anoInput.value, 10);
+            
+            // Verifica se os campos de data foram preenchidos
+            if (diaInput.value && anoInput.value) {
+                if (isNaN(dia) || isNaN(ano) || dia < 1 || dia > 31 || mesIndex < 0 || ano < 1900 || ano > new Date().getFullYear()) {
+                    alert('Por favor, insira uma data de nascimento válida.');
+                    return; // Impede o envio do formulário
+                }
+            }
+            // --- FIM DA VALIDAÇÃO DE DATA ---
 
-            // Cria o corpo da requisição (enviando apenas os números do telefone)
-            const body = { email, sexo, data_nascimento, pais, consentimento_marketing, telefone: telefoneNumeros };
+            const diaFormatado = diaInput.value.padStart(2, '0');
+            const mesFormatado = (mesIndex + 1).toString().padStart(2, '0');
+            const data_nascimento = `${ano}-${mesFormatado}-${diaFormatado}`;
+            
+            const body = { email, sexo, data_nascimento, pais, consentimento_marketing, telefone: telefoneNumeros };
 
             // Envia para o backend (sem a senha)
             fetch('http://localhost:3000/perfil/info', {
@@ -1230,28 +1265,82 @@ function initializePageFunctionality(initialLikedIds) {
 
     if (moodPopup) {
         moodPopup.addEventListener('click', (e) => {
-            if (e.target.tagName === 'LI') {
-                const nomeHumor = e.target.textContent.trim();
+            const clickedItem = e.target;
 
-                // Atualiza o título da seção
-                const personalizedTitle = document.querySelector('.personalized-section .user-highlight');
-                if(personalizedTitle) personalizedTitle.textContent = nomeHumor;
+            // Se clicou em um item de menu (LI)
+            if (clickedItem.tagName === 'LI') {
+                const selectedMood = clickedItem.textContent.trim();
 
-                const personalizedSubTitle = document.querySelector('.personalized-section .small-text');
-                if(personalizedSubTitle) personalizedSubTitle.textContent = 'Músicas para você se sentir';
+                // Lógica do primeiro estágio (selecionando o humor atual)
+                if (!moodOriginSelection) {
+                    moodOriginSelection = selectedMood;
+                    
+                    // Esconde o estágio 1 e mostra o estágio 2
+                    moodOrigin.classList.add('hidden');
+                    moodDestination.classList.remove('hidden');
 
+                } else { // Lógica do segundo estágio (selecionando o humor desejado)
+                    const moodDestinationSelection = selectedMood;
 
-                // Busca e exibe as músicas
-                fetch(`http://localhost:3000/musicas/humor/${nomeHumor}`)
-                    .then(res => res.json())
-                    .then(musicas => {
-                        const container = document.querySelector('.personalized-section .playlists-grid');
-                        renderMusicCards(container, musicas, musicas); // Usa a nova função
-                    });
-
-                moodPopup.classList.remove('active'); // Fecha o popup após a seleção
+                    // Chama a nova função para buscar e renderizar a jornada
+                    renderizarJornadaDeHumor(moodOriginSelection, moodDestinationSelection);
+                    
+                    // Reseta e fecha o popup
+                    moodPopup.classList.remove('active');
+                    setTimeout(() => { // Adiciona um pequeno delay para a transição ficar mais suave
+                        moodOriginSelection = null;
+                        moodOrigin.classList.remove('hidden');
+                        moodDestination.classList.add('hidden');
+                    }, 300);
+                }
             }
         });
+    }
+    
+    // Adiciona a lógica para o novo botão "Voltar"
+    if (moodBackBtn) {
+        moodBackBtn.addEventListener('click', () => {
+            moodOriginSelection = null;
+            moodDestination.classList.add('hidden');
+            moodOrigin.classList.remove('hidden');
+        });
+    }
+
+    function renderizarJornadaDeHumor(de, para) {
+        const container = document.getElementById('journey-container'); // Usaremos o novo ID do Passo 2
+        const subtitle = document.getElementById('journey-subtitle');
+        const highlight = document.getElementById('journey-highlight');
+
+        if (subtitle) subtitle.textContent = `Sua Jornada de`;
+        if (highlight) highlight.textContent = `${de} → ${para}`;
+        if (container) container.innerHTML = '<p style="color: var(--cinza-claro);">Criando sua jornada...</p>';
+
+        fetch(`http://localhost:3000/recomendacao/jornada?de=${de}&para=${para}`)
+            .then(res => res.json())
+            .then(musicas => {
+                if(!musicas || musicas.length === 0){
+                    if (container) container.innerHTML = '<p style="color: var(--cinza-claro);">Não foi possível criar uma jornada com músicas suficientes. Tente outra combinação.</p>';
+                    return;
+                }
+
+                // --- A CORREÇÃO PRINCIPAL ESTÁ AQUI ---
+                // Adaptamos os dados recebidos para o formato que renderMusicCards espera.
+                const correctedMusicas = musicas.map(song => {
+                    return {
+                        ...song, // Copia todas as propriedades originais da música
+                        nome_autor: song.autores // Cria a propriedade 'nome_autor' com o valor de 'autores'
+                    };
+                });
+                
+                // Agora passamos os dados corrigidos para a função de renderização
+                renderMusicCards(container, correctedMusicas, correctedMusicas);
+                // --- FIM DA CORREÇÃO ---
+
+            })
+            .catch(error => {
+                console.error("Erro ao buscar jornada:", error);
+                if (container) container.innerHTML = '<p style="color: var(--cinza-claro);">Ocorreu um erro ao criar sua jornada.</p>';
+            });
     }
 
     if (sidebarGenresList) {
@@ -1349,6 +1438,5 @@ function initializePageFunctionality(initialLikedIds) {
     carregarTocadasRecentemente();
     carregarMusicasCurtidas();
     carregarPlaylistsDoUsuario();
-    document.querySelector('.mood-popup li').click();
 }
 });

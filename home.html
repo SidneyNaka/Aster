@@ -78,15 +78,29 @@
                     <img src="img/dhumor.png" alt="Humor" />
                 </div>
                 <div class="mood-popup">
-                    <h4>Como você está se sentindo?</h4>
-                    <ul>
-                        <li class="menu-item">Feliz</li>
-                        <li class="menu-item">Triste</li>
-                        <li class="menu-item">Relaxado</li>
-                        <li class="menu-item">Energético</li>
-                        <li class="menu-item">Romântico</li>
-                        <li class="menu-item">Focado</li>
-                    </ul>
+                    <div id="mood-origin">
+                        <h4 class="mood-popup-title">Como você está se sentindo?</h4>
+                        <ul class="menu-item-list">
+                            <li class="menu-item">Feliz</li>
+                            <li class="menu-item">Triste</li>
+                            <li class="menu-item">Relaxado</li>
+                            <li class="menu-item">Energético</li>
+                            <li class="menu-item">Romântico</li>
+                            <li class="menu-item">Focado</li>
+                        </ul>
+                    </div>
+                    <div id="mood-destination" class="hidden">
+                        <h4 class="mood-popup-title">Para onde vamos?</h4>
+                        <ul class="menu-item-list">
+                            <li class="menu-item">Feliz</li>
+                            <li class="menu-item">Triste</li>
+                            <li class="menu-item">Relaxado</li>
+                            <li class="menu-item">Energético</li>
+                            <li class="menu-item">Romântico</li>
+                            <li class="menu-item">Focado</li>
+                        </ul>
+                        <button id="mood-back-btn" class="mood-popup-back">← Voltar</button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -105,13 +119,11 @@
         </section>
         
         <section class="personalized-section playlists-section main-content-section">
-            <div class="section-title-wrap">
-                <div class="section-title-personalized">
-                    <span class="small-text">Feito para</span>
-                    <span class="user-highlight">Daniel Simões</span>
-                </div>
+            <div class="section-title-personalized">
+                <span class="small-text" id="journey-subtitle">Sua Jornada de Humor</span>
+                <span class="user-highlight" id="journey-highlight"></span>
             </div>
-            <div class="playlists-grid">
+            <div class="playlists-grid music-grid" id="journey-container">
                 </div>
         </section>
         
@@ -232,13 +244,13 @@
                 <div class="form-group password-input-group">
                     <label for="current-password">Senha atual</label>
                     <input type="password" id="current-password" name="current-password" required />
-                    <span class="password-toggle-icon">Ø</span> 
+                    <img src="img/eye-open.png" class="password-toggle-icon" alt="Mostrar/Ocultar Senha">
                 </div>
 
                 <div class="form-group password-input-group">
                     <label for="new-password">Nova senha</label>
                     <input type="password" id="new-password" name="new-password" required />
-                    <span class="password-toggle-icon">Ø</span> 
+                    <img src="img/eye-open.png" class="password-toggle-icon" alt="Mostrar/Ocultar Senha">
                 </div>
                 
                 <div class="password-requirements">
@@ -255,7 +267,7 @@
                 <div class="form-group password-input-group">
                     <label for="confirm-new-password">Repita a nova senha</label>
                     <input type="password" id="confirm-new-password" name="confirm-new-password" required />
-                    <span class="password-toggle-icon">Ø</span> 
+                    <img src="img/eye-open.png" class="password-toggle-icon" alt="Mostrar/Ocultar Senha">
                 </div>
 
                 <div class="form-actions password-actions">

@@ -82,49 +82,47 @@ app.get('/', (req, res) => {
   res.send('API do Projeto Aster está funcionando!');
 });
 
-// Rota de Login ATUALIZADA COM TOKEN JWT
 app.post('/login', (req, res) => {
-    const { user, password } = req.body;
+    const { email, password } = req.body;
 
-    const query = "SELECT * FROM usuario WHERE email = ?";
+    // --- DEBUG LOG 1: O que o servidor recebeu? ---
+    console.log(`[DEBUG] Tentativa de login recebida para o email: "${email}"`);
 
-    db.query(query, [user], async (err, results) => {
+    db.query("SELECT * FROM usuario WHERE email = ?", [email], (err, results) => {
         if (err) {
-            return res.status(500).json({ success: false, message: "Erro no servidor." });
+            console.error("[DEBUG] Erro ao consultar o banco de dados:", err);
+            return res.status(500).json({ success: false, message: 'Erro no servidor.' });
         }
 
-        if (results.length > 0) {
-            const userFound = results[0];
-            // Compara a senha enviada com a senha criptografada no banco
-            const match = await bcrypt.compare(password, userFound.senha);
+        if (results.length === 0) {
+            // --- DEBUG LOG 2: O email foi encontrado? ---
+            console.log(`[DEBUG] Nenhum usuário encontrado com o email: "${email}"`);
+            return res.status(401).json({ success: false, message: 'Email ou senha inválidos' });
+        }
+        
+        const user = results[0];
+        
+        // --- DEBUG LOG 3: Qual senha está no banco? ---
+        console.log(`[DEBUG] Usuário encontrado: ${user.nome_usuario}. Hash da senha no DB: "${user.senha}"`);
+        console.log(`[DEBUG] Comparando com a senha fornecida: "${password}"`);
 
-            if (match) {
-                // Senhas correspondem, login bem-sucedido!
-                // Agora, vamos criar o Token (o "crachá de acesso").
-                const userPayload = { 
-                    id: userFound.id, 
-                    email: userFound.email,
-                    nome: userFound.nome_usuario 
-                }; 
-                
-                // Altere jwt.sign para usar a nova constante:
-                const token = jwt.sign(userPayload, JWT_SECRET, { expiresIn: '1h' });
-
-                // Envia o token para o front-end
-                res.status(200).json({ 
-                    success: true, 
-                    message: "Login bem-sucedido!", 
-                    token: token 
-                });
-
-            } else {
-                // Senhas não correspondem
-                res.status(401).json({ success: false, message: "Email ou senha inválidos." });
+        bcrypt.compare(password, user.senha, (bcryptErr, match) => {
+            if (bcryptErr) {
+                console.error("[DEBUG] Erro durante a comparação do bcrypt:", bcryptErr);
+                return res.status(500).json({ success: false, message: 'Erro de processamento no servidor.' });
             }
-        } else {
-            // Usuário não encontrado
-            res.status(401).json({ success: false, message: "Email ou senha inválidos." });
-        }
+            
+            // --- DEBUG LOG 4: A comparação deu certo? ---
+            console.log(`[DEBUG] Resultado da comparação (match): ${match}`);
+
+            if (!match) {
+                return res.status(401).json({ success: false, message: 'Email ou senha inválidos' });
+            }
+            
+            console.log("[DEBUG] Sucesso! Gerando token...");
+            const token = jwt.sign({ id: user.id, nome_usuario: user.nome_usuario }, JWT_SECRET, { expiresIn: '1h' });
+            res.json({ success: true, token: token });
+        });
     });
 });
 
@@ -237,11 +235,33 @@ app.put('/perfil/info', (req, res) => {
 
         const { email, sexo, data_nascimento, pais, consentimento_marketing, telefone } = req.body;
         const usuarioId = user.id;
+        
+        // --- INÍCIO DA CORREÇÃO ---
+        // Cria um objeto com os campos a serem atualizados.
+        const fieldsToUpdate = {
+            email: email,
+            sexo: sexo,
+            pais: pais,
+            consentimento_marketing: consentimento_marketing,
+            telefone: telefone
+        };
 
-        const query = "UPDATE usuario SET email = ?, sexo = ?, data_nascimento = ?, pais = ?, consentimento_marketing = ?, telefone = ? WHERE id = ?";
+        // Validação da data: só adiciona ao update se for uma data válida.
+        // O formato 'YYYY-MM-DD' é o esperado.
+        if (data_nascimento && data_nascimento.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            fieldsToUpdate.data_nascimento = data_nascimento;
+        }
 
-        db.query(query, [email, sexo, data_nascimento, pais, consentimento_marketing, telefone, usuarioId], (dbErr, results) => {
-            if (dbErr) return res.status(500).json({ success: false, message: 'Erro no servidor ao atualizar dados.' });
+        // A consulta agora é construída dinamicamente para maior segurança.
+        const query = "UPDATE usuario SET ? WHERE id = ?";
+        // --- FIM DA CORREÇÃO ---
+
+        db.query(query, [fieldsToUpdate, usuarioId], (dbErr, results) => {
+            if (dbErr) {
+                // Adiciona um log para vermos o erro exato no terminal do servidor
+                console.error("Erro ao atualizar perfil:", dbErr);
+                return res.status(500).json({ success: false, message: 'Erro no servidor ao atualizar dados.' });
+            }
             res.json({ success: true, message: 'Perfil atualizado com sucesso!' });
         });
     });
@@ -743,8 +763,113 @@ app.get('/historico/recentes', (req, res) => {
     });
 });
 
-// --- FIM DAS NOVAS ROTAS ---
+// --- ROTA FINAL: JORNADA DE HUMOR INTELIGENTE (LÓGICA AVANÇADA EM JS) ---
+app.get('/recomendacao/jornada', (req, res) => {
+    const { de, para } = req.query;
 
+    if (!de || !para) {
+        return res.status(400).json({ success: false, message: "Humor de origem e destino são obrigatórios." });
+    }
+
+    // O "Cérebro" da nossa transição: define quais humores são "próximos" uns dos outros.
+    const moodProximityMap = {
+        'Feliz': ['Energético', 'Romântico', 'Relaxado'],
+        'Triste': ['Relaxado', 'Romântico', 'Focado'],
+        'Relaxado': ['Feliz', 'Romântico', 'Triste'],
+        'Energético': ['Feliz', 'Focado'],
+        'Romântico': ['Feliz', 'Relaxado', 'Triste'],
+        'Focado': ['Energético', 'Triste', 'Relaxado']
+    };
+
+    const query = `
+        SELECT 
+            vmd.*,
+            GROUP_CONCAT(h.nome SEPARATOR ',') AS humores_musica
+        FROM 
+            vw_musicas_detalhadas vmd
+        JOIN 
+            musica_humor mh ON vmd.id = mh.musica_id
+        JOIN 
+            humor h ON mh.humor_id = h.id
+        WHERE vmd.id IN (
+            SELECT DISTINCT musica_id
+            FROM musica_humor JOIN humor ON humor_id = id
+            WHERE nome IN (?, ?)
+        )
+        GROUP BY vmd.id;
+    `;
+
+    db.query(query, [de, para], (err, results) => {
+        if (err) {
+            console.error("Erro ao buscar músicas para a jornada:", err);
+            return res.status(500).json({ success: false, message: "Erro no servidor." });
+        }
+
+        // --- Lógica de Curadoria em JavaScript ---
+
+        let originOnlySongs = [];
+        let destinationOnlySongs = [];
+        let bridgeSongs = [];
+
+        results.forEach(song => {
+            const humores = song.humores_musica.split(',');
+            const hasOrigin = humores.includes(de);
+            const hasDestination = humores.includes(para);
+
+            if (hasOrigin && hasDestination) bridgeSongs.push(song);
+            else if (hasOrigin) originOnlySongs.push(song);
+            else if (hasDestination) destinationOnlySongs.push(song);
+        });
+        
+        const shuffleArray = arr => arr.sort(() => 0.5 - Math.random());
+        shuffleArray(originOnlySongs);
+        shuffleArray(destinationOnlySongs);
+        shuffleArray(bridgeSongs);
+
+        const journey = [];
+        const addedIds = new Set(); // Para evitar duplicatas
+
+        // Função auxiliar para adicionar músicas à jornada
+        const addSongs = (songs) => {
+            for (const song of songs) {
+                if (!addedIds.has(song.id)) {
+                    journey.push(song);
+                    addedIds.add(song.id);
+                }
+            }
+        };
+
+        // 1. ORIGEM: Adiciona até 4 músicas que são APENAS do humor inicial.
+        addSongs(originOnlySongs.slice(0, 4));
+
+        // 2. PONTE INTELIGENTE: Tenta adicionar até 4 músicas de transição.
+        let bridgeNeeded = 4;
+        const directBridge = bridgeSongs.slice(0, bridgeNeeded);
+        addSongs(directBridge);
+        bridgeNeeded -= directBridge.length;
+
+        // Fallback: Se a ponte perfeita não foi suficiente, busca por pontes "próximas".
+        if (bridgeNeeded > 0 && moodProximityMap[para]) {
+            for (const closeMood of moodProximityMap[para]) {
+                if (bridgeNeeded === 0) break;
+                
+                const closeBridgeSongs = originOnlySongs.filter(song => 
+                    song.humores_musica.includes(closeMood) && !addedIds.has(song.id)
+                );
+                
+                const songsToAdd = closeBridgeSongs.slice(0, bridgeNeeded);
+                addSongs(songsToAdd);
+                bridgeNeeded -= songsToAdd.length;
+            }
+        }
+        
+        // 3. DESTINO: Preenche o resto da playlist com músicas APENAS do humor final.
+        const remainingSlots = 12 - journey.length;
+        addSongs(destinationOnlySongs.slice(0, remainingSlots));
+
+        res.status(200).json(journey);
+    });
+});
 
 // Inicia o servidor
 app.listen(port, () => {

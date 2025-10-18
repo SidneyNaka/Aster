@@ -65,10 +65,26 @@
                         <input type="text" id="new-user" name="new-user" placeholder="Digite seu e-mail ou telefone" required />
 
                         <label for="new-password">Senha</label>
-                        <input type="password" id="new-password" name="new-password" placeholder="Digite sua senha" required />
+                        <div class="password-input-group">
+                            <input type="password" id="new-password" name="new-password" placeholder="Digite sua senha" required />
+                            <img src="img/eye-open.png" class="password-toggle-icon" alt="Mostrar/Ocultar Senha">
+                        </div>
 
                         <label for="confirm-password">Confirmar Senha</label>
-                        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirme sua senha" required />
+                        <div class="password-input-group">
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirme sua senha" required />
+                            <img src="img/eye-open.png" class="password-toggle-icon" alt="Mostrar/Ocultar Senha">
+                        </div>
+
+                        <div class="password-requirements">
+                            <ul id="password-criteria-list-register">
+                                <li id="length-check-register">Pelo menos 8 caracteres</li>
+                                <li id="lowercase-check-register">Uma letra minúscula (a-z)</li>
+                                <li id="uppercase-check-register">Uma letra maiúscula (A-Z)</li>
+                                <li id="number-check-register">Um número (0-9)</li>
+                                <li id="special-check-register">Um caractere especial (!@#$)</li>
+                            </ul>
+                        </div>
 
                         <button type="submit" class="btn-login">Criar conta</button>
                     </form>
@@ -89,16 +105,15 @@
     const loginForm = document.getElementById('login-form');
     const forgotForm = document.getElementById('forgot-password-form');
     const createForm = document.getElementById('create-account-form');
-
     const forgotLink = document.getElementById('forgot-password-link');
     const createLink = document.getElementById('create-account-link');
     const backFromForgot = document.getElementById('back-to-login-from-forgot');
     const backFromCreate = document.getElementById('back-to-login-from-create');
-    
-    // --- Elementos dos Formulários ---
     const loginFormEl = loginForm.querySelector('form');
     const createFormEl = createForm.querySelector('form');
     const errorMessageEl = document.getElementById('error-message');
+    const loginEmailInput = document.getElementById('user');
+    const createEmailInput = document.getElementById('new-user');
 
     // --- Função para Alternar Formulários ---
     function showForm(formToShow) {
@@ -114,56 +129,91 @@
     backFromForgot.addEventListener('click', (e) => { e.preventDefault(); showForm(loginForm); });
     backFromCreate.addEventListener('click', (e) => { e.preventDefault(); showForm(loginForm); });
 
+    // --- LÓGICA DE VALIDAÇÃO DE E-MAIL ---
+    const validateEmail = (input) => {
+        if (!input) return;
+        input.addEventListener('input', () => {
+            const emailValue = input.value;
+            if (emailValue.length > 0) {
+                const isValid = emailValue.includes('@');
+                input.classList.toggle('valid', isValid);
+                input.classList.toggle('invalid', !isValid);
+            } else {
+                input.classList.remove('valid', 'invalid');
+            }
+        });
+    };
+    validateEmail(loginEmailInput);
+    validateEmail(createEmailInput);
+
     // --- Lógica do Formulário de Login ---
     loginFormEl.addEventListener('submit', function(e) {
         e.preventDefault();
         if(errorMessageEl) errorMessageEl.style.display = 'none';
-
-        const email = document.getElementById('user').value;
+        const email = loginEmailInput.value;
         const senha = document.getElementById('password').value;
-
+        if (!email.includes('@')) {
+            errorMessageEl.textContent = 'Por favor, insira um e-mail válido.';
+            errorMessageEl.style.display = 'block';
+            return;
+        }
         fetch('http://localhost:3000/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user: email, password: senha })
-        })
-        .then(response => response.json())
-        .then(data => {
+            body: JSON.stringify({ email: email, password: senha })
+        }).then(response => response.json()).then(data => {
             if (data.success) {
-                // ---- AQUI ESTÁ A MUDANÇA ----
-                // Salva o token recebido no localStorage do navegador
                 localStorage.setItem('token', data.token);
-                
-                // E então redireciona para a página principal
                 window.location.href = 'home.html';
             } else {
-                if(errorMessageEl) {
-                    errorMessageEl.textContent = data.message;
-                    errorMessageEl.style.display = 'block';
-                } else {
-                    alert(data.message);
-                }
+                if(errorMessageEl) { errorMessageEl.textContent = data.message; errorMessageEl.style.display = 'block'; }
             }
-        })
-        .catch(error => {
-            console.error('Erro na requisição de login:', error);
-            if(errorMessageEl) {
-                errorMessageEl.textContent = 'Não foi possível conectar ao servidor.';
-                errorMessageEl.style.display = 'block';
-            } else {
-                alert('Não foi possível conectar ao servidor.');
-            }
+        }).catch(error => {
+            if(errorMessageEl) { errorMessageEl.textContent = 'Não foi possível conectar ao servidor.'; errorMessageEl.style.display = 'block'; }
         });
     });
+
+    // --- NOVA LÓGICA: VALIDAÇÃO DE SENHA NO CADASTRO ---
+    const newPasswordInput = document.getElementById('new-password');
+    const criteriaList = {
+        length: document.getElementById('length-check-register'),
+        lowercase: document.getElementById('lowercase-check-register'),
+        uppercase: document.getElementById('uppercase-check-register'),
+        number: document.getElementById('number-check-register'),
+        special: document.getElementById('special-check-register')
+    };
+
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', () => {
+            const password = newPasswordInput.value;
+            criteriaList.length.classList.toggle('valid', password.length >= 8);
+            criteriaList.lowercase.classList.toggle('valid', /[a-z]/.test(password));
+            criteriaList.uppercase.classList.toggle('valid', /[A-Z]/.test(password));
+            criteriaList.number.classList.toggle('valid', /[0-9]/.test(password));
+            criteriaList.special.classList.toggle('valid', /[!@#$%^&*(),.?":{}|<>]/.test(password));
+        });
+    }
 
     // --- Lógica do Formulário de Criação de Conta ---
     createFormEl.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        // ADICIONADO: Bloqueia o envio se a senha for inválida
+        const allCriteriaValid = Object.values(criteriaList).every(item => item.classList.contains('valid'));
+        if (!allCriteriaValid) {
+            alert('Sua senha não atende a todos os requisitos de segurança.');
+            return;
+        }
+        
         const username = document.getElementById('new-username').value;
-        const email = document.getElementById('new-user').value;
-        const password = document.getElementById('new-password').value;
+        const email = createEmailInput.value;
+        const password = newPasswordInput.value;
         const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (!email.includes('@')) {
+            alert("Por favor, insira um endereço de e-mail válido.");
+            return;
+        }
 
         if (password !== confirmPassword) {
             alert("As senhas não coincidem!");
@@ -174,20 +224,34 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })
-        })
-        .then(res => res.json())
-        .then(data => {
+        }).then(res => res.json()).then(data => {
             alert(data.message);
             if (data.success) {
                 showForm(loginForm);
                 createFormEl.reset();
+                createEmailInput.classList.remove('valid', 'invalid');
+                Object.values(criteriaList).forEach(item => item.classList.remove('valid'));
             }
-        })
-        .catch(err => {
+        }).catch(err => {
             console.error('Erro na requisição de registro:', err);
             alert('Ocorreu um erro ao tentar criar a conta.');
         });
     });
-</script>
+
+    // --- NOVA LÓGICA: MOSTRAR/OCULTAR SENHA PARA TODOS OS CAMPOS ---
+    const passwordToggleIcons = document.querySelectorAll('.password-toggle-icon');
+    passwordToggleIcons.forEach(icon => {
+        icon.addEventListener('click', () => {
+            const passwordInput = icon.previousElementSibling;
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.src = 'img/eye-closed.png';
+            } else {
+                passwordInput.type = 'password';
+                icon.src = 'img/eye-open.png';
+            }
+        });
+    });
+    </script>
 </body>
 </html>
