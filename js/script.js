@@ -108,6 +108,7 @@ fetch('http://localhost:3000/perfil', {
 });
 
 function initializePageFunctionality(initialLikedIds) {
+    let debounceTimer;
     let currentMusicId = null;
     let currentOpenPlaylistId = null;
     let currentPlaylistSongIds = new Set();
@@ -186,7 +187,27 @@ function initializePageFunctionality(initialLikedIds) {
     const moodOrigin = document.getElementById('mood-origin');
     const moodDestination = document.getElementById('mood-destination');
     const moodBackBtn = document.getElementById('mood-back-btn');
-    let moodOriginSelection = null; 
+    let moodOriginSelection = null;
+    const searchResultsArea = document.getElementById('search-results-area');
+    const deleteAccountLink = document.getElementById('delete-account-link');
+    const deleteAccountModal = document.getElementById('delete-account-modal');
+    const btnCancelDelete = document.getElementById('btn-cancel-delete');
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete');
+
+    // Contêineres de resultados
+    const resultsAllView = document.getElementById('results-all-view');
+    const resultsSongsView = document.getElementById('results-songs-view');
+    const resultsPlaylistsView = document.getElementById('results-playlists-view');
+
+    // Elementos da aba "Tudo"
+    const resultsAllSongsSection = document.getElementById('results-all-songs-section');
+    const resultsAllPlaylistsSection = document.getElementById('results-all-playlists-section');
+    const resultsAllSongsList = document.getElementById('results-all-songs-list');
+    const resultsAllPlaylistsGrid = document.getElementById('results-all-playlists-grid');
+
+    // Elementos das outras abas
+    const resultsSongsList = document.getElementById('results-songs-list');
+    const resultsPlaylistsGrid = document.getElementById('results-playlists-grid');
 
     function formatTime(seconds) {
         const minutes = Math.floor(seconds / 60);
@@ -451,24 +472,52 @@ function initializePageFunctionality(initialLikedIds) {
     }
     
     function performSearch(query) {
-        if (!query || query.trim() === '') return;
-        const resultsContainer = document.querySelector('.search-results-list');
-        if (!resultsContainer) return;
+        // Se a busca estiver vazia, volta para a tela inicial
+        if (!query || query.trim() === '') {
+            showMainContent();
+            return;
+        }
+
         showSection('search-container');
-        fetch('http://localhost:3000/musicas')
-            .then(res => res.json())
-            .then(todasAsMusicas => {
-                const searchTerm = query.toLowerCase();
-                const filteredMusicas = todasAsMusicas.filter(m =>
-                    m.titulo.toLowerCase().includes(searchTerm) ||
-                    m.nome_autor.toLowerCase().includes(searchTerm)
-                );
-                renderizarMusicasComoLista(resultsContainer, filteredMusicas, new Set(), filteredMusicas, 'search');
-            })
-            .catch(error => {
-                console.error("Erro ao realizar a busca:", error);
-                resultsContainer.innerHTML = "<p>Ocorreu um erro ao buscar. Tente novamente.</p>";
+        
+        const activeFilter = document.querySelector('.filter-btn.active').id;
+        document.querySelectorAll('.search-results-view').forEach(view => view.classList.add('hidden'));
+
+        if (activeFilter === 'filter-all') {
+            resultsAllView.classList.remove('hidden');
+            resultsAllSongsList.innerHTML = '<p>Buscando músicas...</p>';
+            resultsAllPlaylistsGrid.innerHTML = '<p>Buscando playlists...</p>';
+            fetch(`http://localhost:3000/pesquisa/tudo?q=${query}`).then(res => res.json()).then(data => {
+                if (data.musicas.length > 0) {
+                    resultsAllSongsSection.style.display = 'block';
+                    const correctedMusicas = data.musicas.map(song => ({ ...song, nome_autor: song.autores }));
+                    renderizarMusicasComoLista(resultsAllSongsList, correctedMusicas, new Set(), correctedMusicas, 'search');
+                } else {
+                    resultsAllSongsSection.style.display = 'none';
+                }
+                if (data.playlists.length > 0) {
+                    resultsAllPlaylistsSection.style.display = 'block';
+                    renderizarPlaylistsComoCard(resultsAllPlaylistsGrid, data.playlists);
+                } else {
+                    resultsAllPlaylistsSection.style.display = 'none';
+                }
             });
+        } else if (activeFilter === 'filter-songs') {
+            resultsSongsView.classList.remove('hidden');
+            resultsSongsList.innerHTML = '<p>Buscando músicas...</p>';
+            fetch('http://localhost:3000/musicas').then(res => res.json()).then(todasAsMusicas => {
+                const searchTerm = query.toLowerCase();
+                const filtered = todasAsMusicas.filter(m => m.titulo.toLowerCase().includes(searchTerm) || (m.nome_autor && m.nome_autor.toLowerCase().includes(searchTerm)));
+                renderizarMusicasComoLista(resultsSongsList, filtered, new Set(), filtered, 'search');
+            }).catch(error => {
+                console.error("Erro ao buscar ou filtrar músicas:", error);
+                resultsSongsList.innerHTML = '<p class="no-results-message">Ocorreu um erro ao buscar as músicas.</p>';
+            });
+        } else if (activeFilter === 'filter-playlists') {
+            resultsPlaylistsView.classList.remove('hidden');
+            resultsPlaylistsGrid.innerHTML = '<p>Buscando playlists...</p>';
+            fetch(`http://localhost:3000/pesquisa/playlists?q=${query}`).then(res => res.json()).then(data => renderizarPlaylistsComoCard(resultsPlaylistsGrid, data));
+        }
     }
 
     function playFromQueue(queue, index) {
@@ -616,6 +665,8 @@ function initializePageFunctionality(initialLikedIds) {
                 document.getElementById('playlist-view-name').textContent = data.details.nome;
                 document.getElementById('playlist-view-description').textContent = data.details.descricao;
                 document.getElementById('playlist-view-cover').src = finalCoverUrl;
+                const creatorEl = document.getElementById('playlist-view-creator');
+                if(creatorEl) creatorEl.textContent = `Por: ${data.details.criador}`;
                 const songsContainer = document.getElementById('playlist-view-songs-container');
                 renderizarMusicasComoLista(songsContainer, data.songs, currentPlaylistSongIds, data.songs);
                 showSection(playlistViewSection);
@@ -1117,8 +1168,20 @@ function initializePageFunctionality(initialLikedIds) {
         });
     }
 
-    searchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') performSearch(searchInput.value.trim());
+    // --- LÓGICA DE BUSCA AUTOMÁTICA (LIVE SEARCH) COM DEBOUNCE ---
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+
+        // Cancela o timer anterior a cada nova tecla digitada
+        clearTimeout(debounceTimer);
+
+        // Inicia um novo timer
+        debounceTimer = setTimeout(() => {
+            // A busca só é executada se a pesquisa tiver 2+ caracteres ou estiver vazia
+            if (query.length > 1 || query.length === 0) {
+                performSearch(query);
+            }
+        }, 350); // Atraso de 350 milissegundos após a última tecla
     });
     
     try {
@@ -1434,6 +1497,86 @@ function initializePageFunctionality(initialLikedIds) {
             }
         });
     });
+
+    // --- NOVA FUNÇÃO PARA RENDERIZAR PLAYLISTS COMO CARDS ---
+    function renderizarPlaylistsComoCard(container, playlists) {
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (playlists.length === 0) {
+            container.innerHTML = '<p class="no-results-message">Nenhuma playlist encontrada.</p>';
+            return;
+        }
+
+        playlists.forEach(playlist => {
+            const card = document.createElement('div');
+            card.className = 'playlist-card'; // Reutiliza o estilo de card de playlist
+            const finalCoverUrl = playlist.url_capa.startsWith('http') ? playlist.url_capa : `http://localhost:3000${playlist.url_capa}`;
+
+            card.innerHTML = `
+                <img src="${finalCoverUrl}" alt="Capa da Playlist: ${playlist.nome}" />
+                <div class="playlist-info">
+                    <h4>${playlist.nome}</h4>
+                    <span>De: ${playlist.criador}</span>
+                </div>
+            `;
+            card.addEventListener('click', () => abrirPlaylistView(playlist.id));
+            container.appendChild(card);
+        });
+    }
+
+    // --- LÓGICA DOS BOTÕES DE FILTRO DA BUSCA ---
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove a classe 'active' de todos os botões
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Adiciona a classe 'active' apenas ao botão clicado
+            button.classList.add('active');
+
+            // Executa a busca novamente com o novo filtro ativo
+            performSearch(searchInput.value.trim());
+        });
+    });
+
+    // --- LÓGICA PARA EXCLUSÃO DE CONTA ---
+    if (deleteAccountLink) {
+        // Abre o modal de confirmação
+        deleteAccountLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            deleteAccountModal.classList.remove('hidden');
+        });
+    }
+
+    if (btnCancelDelete) {
+        // Fecha o modal ao clicar em "Cancelar"
+        btnCancelDelete.addEventListener('click', () => {
+            deleteAccountModal.classList.add('hidden');
+        });
+    }
+
+    if (btnConfirmDelete) {
+        // Executa a exclusão ao confirmar
+        btnConfirmDelete.addEventListener('click', () => {
+            fetch('http://localhost:3000/perfil', {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message);
+                if (data.success) {
+                    // Limpa o token e redireciona para o login
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
+                }
+            })
+            .catch(error => {
+                console.error("Erro ao excluir conta:", error);
+                alert("Ocorreu um erro ao tentar excluir a conta.");
+                deleteAccountModal.classList.add('hidden');
+            });
+        });
+    }
 
     carregarTocadasRecentemente();
     carregarMusicasCurtidas();

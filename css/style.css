@@ -2374,3 +2374,58 @@ body {
 #password-change-form .password-actions {
     margin-top: 15px;
 }
+
+/* --- ESTILOS PARA A NOVA SEÇÃO DE BUSCA --- */
+
+/* Título para as sub-seções (Músicas, Playlists) na aba "Tudo" */
+.search-subsection-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--branco);
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--cinza-escuro);
+}
+
+/* Garante que o primeiro título da busca não tenha margem no topo */
+#results-all-songs-section .search-subsection-title {
+    margin-top: 10px;
+}
+
+/* Mensagem para quando não houver resultados em uma sub-seção */
+.no-results-message {
+    color: var(--cinza-claro);
+    padding: 20px 0;
+    font-style: italic;
+}
+
+/* --- ESTILOS PARA EXCLUSÃO DE CONTA --- */
+
+/* Estilo para a opção "Excluir conta" na lista */
+.account-list-item.danger-action span {
+    color: #ff6b6b;
+}
+
+.account-list-item.danger-action:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+    box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+}
+
+/* Estilo para o texto de aviso no modal */
+.delete-warning-text {
+    color: var(--cinza-claro);
+    margin: 20px 0 30px 0;
+    line-height: 1.6;
+}
+
+/* Estilo para o botão de confirmação vermelho */
+.btn-danger {
+    background-color: #c53030;
+    color: var(--branco);
+}
+
+.btn-danger:hover {
+    background-color: #9b2c2c;
+    box-shadow: 0 0 10px #c53030;
+}

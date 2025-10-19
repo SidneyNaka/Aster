@@ -148,7 +148,6 @@
         <div id="account-section" class="main-content-section hidden">
             <h1 class="section-title" style="max-width: 600px; margin: 0 auto 25px auto;">Conta</h1>
             <div class="account-settings-container">
-                
                 <a href="#" class="account-list-item" data-action="edit-info">
                     <div class="icon-container"><img src="img/lapis.png" alt="Editar" /></div>
                     <span>Editar informações pessoais</span>
@@ -159,6 +158,14 @@
                     <div class="icon-container"><img src="img/cadeado.png" alt="Alterar" /></div>
                     <span>Alterar senha</span>
                     <div class="arrow-container">></div>
+                </a>
+
+                <a class="account-list-item danger-action" id="delete-account-link">
+                    <div class="icon-container">
+                        <img src="img/delete.png" alt="Excluir">
+                    </div>
+                    <span>Excluir conta</span>
+                    <div class="arrow-container">&gt;</div>
                 </a>
             </div>
         </div>
@@ -277,25 +284,42 @@
             </form>
         </div>
         <div id="search-container" class="search-container hidden">
-            <section class="search-results-section">
+            <div class="search-results-section">
                 <div class="search-results-header">
-                    <h2 class="section-title">Resultados da Pesquisa</h2>
+                    <h2 class="section-title">Resultados da Busca</h2>
                     <button class="back-to-home-btn">Voltar ao Início</button>
                 </div>
-                
                 <div class="search-filters">
-                    <button class="filter-btn active">Tudo</button>
-                    <button class="filter-btn">Álbuns</button>
-                    <button class="filter-btn">Artistas</button>
-                    <button class="filter-btn">Músicas</button>
-                    <button class="filter-btn">Playlists</button>
-                    <button class="filter-btn">Podcasts e programas</button>
-                    <button class="filter-btn">Gêneros e estados de espírito</button>
-                    <button class="filter-btn">Perfis</button>
+                    <button class="filter-btn active" id="filter-all">Tudo</button>
+                    <button class="filter-btn" id="filter-songs">Músicas</button>
+                    <button class="filter-btn" id="filter-playlists">Playlists</button>
                 </div>
-                <div class="search-results-list">
+
+                <div id="search-results-area">
+                    <div id="results-all-view" class="search-results-view">
+                        <div id="results-all-songs-section">
+                            <h3 class="search-subsection-title">Músicas</h3>
+                            <div id="results-all-songs-list" class="search-results-list">
+                                </div>
+                        </div>
+                        <div id="results-all-playlists-section">
+                            <h3 class="search-subsection-title">Playlists</h3>
+                            <div id="results-all-playlists-grid" class="playlists-grid music-grid">
+                                </div>
+                        </div>
                     </div>
-            </section>
+
+                    <div id="results-songs-view" class="search-results-view hidden">
+                        <div id="results-songs-list" class="search-results-list">
+                            </div>
+                    </div>
+
+                    <div id="results-playlists-view" class="search-results-view hidden">
+                        <div id="results-playlists-grid" class="playlists-grid music-grid">
+                            </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <div id="profile-section" class="main-content-section hidden">
@@ -344,6 +368,7 @@
                     <span class="profile-type">Playlist</span>
                     <h1 id="playlist-view-name">Nome da Playlist</h1>
                     <p id="playlist-view-description">Descrição da playlist aqui.</p>
+                    <span id="playlist-view-creator" class="playlist-creator"></span>
                 </div>
                 <div class="playlist-view-actions">
                     <button class="profile-action-btn delete-btn" id="btn-delete-playlist">Deletar Playlist</button>
@@ -504,6 +529,19 @@
                 </div>
             <div class="modal-actions">
                 <button id="btn-cancel-select-playlist" class="btn-cancel">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <div id="delete-account-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">Confirmar Exclusão</h2>
+            <p class="delete-warning-text">
+                Você tem certeza de que deseja excluir sua conta? <br>
+                <strong>Esta ação é permanente e irreversível.</strong> Todas as suas playlists, músicas curtidas e histórico serão perdidos.
+            </p>
+            <div class="modal-actions">
+                <button id="btn-cancel-delete" class="btn-cancel">Cancelar</button>
+                <button id="btn-confirm-delete" class="btn-danger">Confirmar Exclusão</button>
             </div>
         </div>
     </div>

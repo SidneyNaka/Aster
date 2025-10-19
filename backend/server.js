@@ -30,7 +30,7 @@ app.use(bodyParser.json()); // Habilita o body-parser para ler JSON
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Grid@braham9145', // Coloque a senha que você definiu na instalação do MySQL
+  password: 'Grid@braham9145', 
   database: 'aster'
 });
 
@@ -263,6 +263,38 @@ app.put('/perfil/info', (req, res) => {
                 return res.status(500).json({ success: false, message: 'Erro no servidor ao atualizar dados.' });
             }
             res.json({ success: true, message: 'Perfil atualizado com sucesso!' });
+        });
+    });
+});
+
+// --- ROTA SEGURA PARA EXCLUSÃO DE CONTA ---
+app.delete('/perfil', (req, res) => {
+    // 1. Validação do Token para identificar o usuário
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+
+        // 2. O ID do usuário vem DIRETAMENTE do token, garantindo que ele só pode deletar a si mesmo.
+        const usuarioId = user.id;
+
+        // 3. Executa um único comando DELETE. O banco de dados cuidará do resto (CASCADE).
+        const query = "DELETE FROM usuario WHERE id = ?";
+
+        db.query(query, [usuarioId], (dbErr, results) => {
+            if (dbErr) {
+                console.error("Erro ao deletar usuário:", dbErr);
+                return res.status(500).json({ success: false, message: 'Erro no servidor ao tentar deletar a conta.' });
+            }
+
+            // 4. Verificação de segurança: confirma que exatamente uma conta foi deletada.
+            if (results.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: 'Usuário não encontrado para exclusão.' });
+            }
+
+            res.json({ success: true, message: 'Sua conta e todos os seus dados foram excluídos com sucesso.' });
         });
     });
 });
@@ -523,8 +555,13 @@ app.get('/playlists/:id', (req, res) => {
         const playlistId = req.params.id;
         const usuarioId = user.id;
 
-        // Primeiro, busca os detalhes da playlist e verifica se ela pertence ao usuário
-        const playlistQuery = "SELECT * FROM playlist WHERE id = ? AND usuario_id = ?";
+        // Busca os detalhes da playlist, adiciona o nome do criador e verifica a posse
+        const playlistQuery = `
+            SELECT p.*, u.nome_usuario AS criador
+            FROM playlist p
+            JOIN usuario u ON p.usuario_id = u.id
+            WHERE p.id = ? AND p.usuario_id = ?;
+        `;
         db.query(playlistQuery, [playlistId, usuarioId], (err, playlistResults) => {
             if (err || playlistResults.length === 0) {
                 return res.status(404).json({ message: "Playlist não encontrada ou não pertence ao usuário." });
@@ -868,6 +905,67 @@ app.get('/recomendacao/jornada', (req, res) => {
         addSongs(destinationOnlySongs.slice(0, remainingSlots));
 
         res.status(200).json(journey);
+    });
+});
+
+// --- NOVAS ROTAS PARA A BUSCA REFORMULADA ---
+
+// Rota para a aba "Tudo" (busca músicas e playlists)
+app.get('/pesquisa/tudo', (req, res) => {
+    const termo = req.query.q;
+    if (!termo) {
+        return res.status(400).json({ musicas: [], playlists: [] });
+    }
+
+    const musicaQuery = `
+        SELECT * FROM vw_musicas_detalhadas 
+        WHERE titulo LIKE CONCAT('%', ?, '%') OR autores LIKE CONCAT('%', ?, '%')
+        LIMIT 5;
+    `;
+
+    const playlistQuery = `
+        SELECT p.id, p.nome, p.url_capa, u.nome_usuario AS criador
+        FROM playlist p
+        JOIN usuario u ON p.usuario_id = u.id
+        WHERE p.nome LIKE CONCAT('%', ?, '%')
+        LIMIT 5;
+    `;
+
+    // Executa as duas buscas em paralelo
+    Promise.all([
+        db.promise().query(musicaQuery, [termo, termo]),
+        db.promise().query(playlistQuery, [termo])
+    ]).then(([musicasResults, playlistsResults]) => {
+        res.json({
+            musicas: musicasResults[0],
+            playlists: playlistsResults[0]
+        });
+    }).catch(err => {
+        console.error("Erro na busca 'Tudo':", err);
+        res.status(500).json({ message: "Erro no servidor ao realizar a busca." });
+    });
+});
+
+// Rota para a aba "Playlists"
+app.get('/pesquisa/playlists', (req, res) => {
+    const termo = req.query.q;
+    if (!termo) {
+        return res.status(400).json([]);
+    }
+
+    const playlistQuery = `
+        SELECT p.id, p.nome, p.url_capa, u.nome_usuario AS criador
+        FROM playlist p
+        JOIN usuario u ON p.usuario_id = u.id
+        WHERE p.nome LIKE CONCAT('%', ?, '%');
+    `;
+
+    db.query(playlistQuery, [termo], (err, results) => {
+        if (err) {
+            console.error("Erro na busca de playlists:", err);
+            return res.status(500).json({ message: "Erro no servidor." });
+        }
+        res.json(results);
     });
 });
 
